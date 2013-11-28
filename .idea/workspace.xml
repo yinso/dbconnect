@@ -53,7 +53,7 @@
       <file leaf-file-name="mongodb.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/mongodb.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="78" column="54" selection-start="1828" selection-end="1828" vertical-scroll-proportion="-23.68" vertical-offset="578" max-vertical-offset="1485">
+            <state line="3" column="0" selection-start="47" selection-end="47" vertical-scroll-proportion="-1.8" vertical-offset="0" max-vertical-offset="1470">
               <folding />
             </state>
           </provider>
@@ -68,10 +68,31 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="package.bean" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="package.bean" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/package.bean">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="0" selection-start="294" selection-end="294" vertical-scroll-proportion="0.2738764" vertical-offset="0" max-vertical-offset="712">
+            <state line="9" column="0" selection-start="236" selection-end="236" vertical-scroll-proportion="-5.4" vertical-offset="0" max-vertical-offset="450">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="139" column="0" selection-start="4382" selection-end="4382" vertical-scroll-proportion="0.87323946" vertical-offset="1465" max-vertical-offset="2175">
+              <folding />
+            </state>
+          </provider>
+          <provider editor-type-id="MarkdownPreviewEditor">
+            <state />
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="main.coffee" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main.coffee">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="4" column="0" selection-start="82" selection-end="82" vertical-scroll-proportion="-2.4" vertical-offset="0" max-vertical-offset="150">
               <folding />
             </state>
           </provider>
@@ -91,8 +112,10 @@
         <option value="$PROJECT_DIR$/src/dbconnect.coffee" />
         <option value="$PROJECT_DIR$/example/mongodb.coffee" />
         <option value="$PROJECT_DIR$/src/mongodb.coffee" />
-        <option value="$PROJECT_DIR$/test/mongodb.coffee" />
+        <option value="$PROJECT_DIR$/src/main.coffee" />
         <option value="$PROJECT_DIR$/package.bean" />
+        <option value="$PROJECT_DIR$/test/mongodb.coffee" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -305,18 +328,35 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/mongodb.coffee">
+    <entry file="file://$PROJECT_DIR$/src/main.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="54" selection-start="1828" selection-end="1828" vertical-scroll-proportion="-23.68" vertical-offset="578" max-vertical-offset="1485">
+        <state line="4" column="0" selection-start="82" selection-end="82" vertical-scroll-proportion="-2.4" vertical-offset="0" max-vertical-offset="150">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/package.bean">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="0" selection-start="294" selection-end="294" vertical-scroll-proportion="0.2738764" vertical-offset="0" max-vertical-offset="712">
+        <state line="9" column="0" selection-start="236" selection-end="236" vertical-scroll-proportion="-5.4" vertical-offset="0" max-vertical-offset="450">
           <folding />
         </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/mongodb.coffee">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="0" selection-start="47" selection-end="47" vertical-scroll-proportion="-1.8" vertical-offset="0" max-vertical-offset="1470">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="139" column="0" selection-start="4382" selection-end="4382" vertical-scroll-proportion="0.87323946" vertical-offset="1465" max-vertical-offset="2175">
+          <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="MarkdownPreviewEditor">
+        <state />
       </provider>
     </entry>
   </component>

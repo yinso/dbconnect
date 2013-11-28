@@ -6,6 +6,7 @@ version: '0.1.0'
 repository:
   type: 'git'
   url: 'git://github.com/yinso/dbconnect.git'
+main: './lib/main'
 engines:
   node: '~ 0.8.4'
 scripts:

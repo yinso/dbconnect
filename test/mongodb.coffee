@@ -1,5 +1,4 @@
-DBConnect = require '../src/dbconnect'
-MongoDBDriver = require '../src/mongodb'
+DBConnect = require '../src/main'
 
 conn = null
 
