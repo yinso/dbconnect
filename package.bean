@@ -3,10 +3,9 @@ author: 'YC <yinso.chen@gmail.com>'
 name: 'dbconnect'
 description: 'A simple database interface for NodeJS'
 version: '0.1.0'
-private: true
 repository:
   type: 'git'
-  url: 'git://bitbucket.org/yinso/dbconnect.git'
+  url: 'git://github.com/yinso/dbconnect.git'
 engines:
   node: '~ 0.8.4'
 scripts:
