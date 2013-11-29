@@ -13,6 +13,11 @@ class DBConnect
     else
       undefined
   @inners: {}
+  @has: (name) ->
+    if @inners.hasOwnProperty(name)
+      @inners[name]
+    else
+      undefined
   @setup: (args) ->
     if @inners.hasOwnProperty(args.name)
       throw new Error("DBConnect.setup_connection_exists: #{args.name}")
