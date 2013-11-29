@@ -37,13 +37,15 @@ class DBPool extends EventEmitter
   hasFree: () ->
     @free.length > 0
   acquireFree: (cb) ->
-    conn = @available.shift()
+    conn = @free.shift()
+    @active.push conn
     cb null, conn
   waitToAcquire: (cb) ->
     @queue.push cb
   removeFromActive: (conn) ->
     index = @active.indexOf(conn)
-    @active.splice index, 1
+    if index >= 0
+      @active.splice index, 1
     conn
   release: (conn) ->
     @removeFromActive conn
