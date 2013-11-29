@@ -7,6 +7,11 @@ class DBConnect
     if @connTypes.hasOwnProperty(type)
       throw new Error("DBConnect.register_type_exists: #{type}")
     @connTypes[type] = connector
+  @hasType: (type) ->
+    if @connTypes.hasOwnProperty(type)
+      @connTypes[type]
+    else
+      undefined
   @inners: {}
   @setup: (args) ->
     if @inners.hasOwnProperty(args.name)
@@ -29,13 +34,14 @@ class DBConnect
     @prepared = {}
     @currentUser = null
     @loadModule()
-  loadModule: () ->
-    loader = @args.loader
+  loadModule: (loader = @args.loader) ->
+
     if loader instanceof Function
       loader @
     else if loader instanceof Object
       for key, val of loader
         if loader.hasOwnProperty(key)
+          console.log 'dbconnect.loadModule', key, val
           if val instanceof Function
             @prepare key, val
           else

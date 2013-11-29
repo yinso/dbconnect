@@ -23,19 +23,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="dbconnect.coffee" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="dbconnect.coffee" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/dbconnect.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="0" selection-start="1194" selection-end="1194" vertical-scroll-proportion="-17.96" vertical-offset="121" max-vertical-offset="1170">
+            <state line="37" column="0" selection-start="1145" selection-end="1145" vertical-scroll-proportion="0.8055152" vertical-offset="0" max-vertical-offset="1260">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mongodb.coffee" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="mongodb.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/mongodb.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="75" column="42" selection-start="2141" selection-end="2141" vertical-scroll-proportion="0.32510886" vertical-offset="901" max-vertical-offset="2430">
+            <state line="155" column="0" selection-start="4577" selection-end="4662" vertical-scroll-proportion="-79.76" vertical-offset="331" max-vertical-offset="2625">
               <folding />
             </state>
           </provider>
@@ -103,8 +103,17 @@
       <file leaf-file-name="mongodb.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/mongodb.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="0" selection-start="1071" selection-end="1071" vertical-scroll-proportion="0.0" vertical-offset="450" max-vertical-offset="3975">
-              <folding />
+            <state line="62" column="0" selection-start="1891" selection-end="1891" vertical-scroll-proportion="0.0" vertical-offset="930" max-vertical-offset="4455">
+              <folding>
+                <marker date="1385695204000" expanded="true" signature="6745:7357" placeholder="{...}" />
+                <marker date="1385695204000" expanded="true" signature="6845:7304" placeholder="{...}" />
+                <marker date="1385695204000" expanded="true" signature="6994:7277" placeholder="{...}" />
+                <marker date="1385695204000" expanded="true" signature="7075:7253" placeholder="{...}" />
+                <marker date="1385695204000" expanded="true" signature="7068:7226" placeholder="{...}" />
+                <marker date="1385695204000" expanded="true" signature="7108:7118" placeholder="{...}" />
+                <marker date="1385695204000" expanded="true" signature="7124:7166" placeholder="{...}" />
+                <marker date="1385695204000" expanded="true" signature="7322:7338" placeholder="{...}" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -135,8 +144,8 @@
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/test/mongodb.coffee" />
         <option value="$PROJECT_DIR$/src/uuid.coffee" />
-        <option value="$PROJECT_DIR$/src/dbconnect.coffee" />
         <option value="$PROJECT_DIR$/src/mongodb.coffee" />
+        <option value="$PROJECT_DIR$/src/dbconnect.coffee" />
       </list>
     </option>
   </component>
@@ -308,7 +317,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
@@ -356,28 +365,23 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/mongodb.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="0" selection-start="1071" selection-end="1071" vertical-scroll-proportion="0.0" vertical-offset="450" max-vertical-offset="3975">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.coffee">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="0" selection-start="82" selection-end="82" vertical-scroll-proportion="-2.4" vertical-offset="0" max-vertical-offset="150">
-          <folding />
+        <state line="62" column="0" selection-start="1891" selection-end="1891" vertical-scroll-proportion="0.0" vertical-offset="930" max-vertical-offset="4455">
+          <folding>
+            <marker date="1385695204000" expanded="true" signature="6745:7357" placeholder="{...}" />
+            <marker date="1385695204000" expanded="true" signature="6845:7304" placeholder="{...}" />
+            <marker date="1385695204000" expanded="true" signature="6994:7277" placeholder="{...}" />
+            <marker date="1385695204000" expanded="true" signature="7075:7253" placeholder="{...}" />
+            <marker date="1385695204000" expanded="true" signature="7068:7226" placeholder="{...}" />
+            <marker date="1385695204000" expanded="true" signature="7108:7118" placeholder="{...}" />
+            <marker date="1385695204000" expanded="true" signature="7124:7166" placeholder="{...}" />
+            <marker date="1385695204000" expanded="true" signature="7322:7338" placeholder="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/uuid.coffee">
       <provider selected="true" editor-type-id="text-editor">
         <state line="129" column="0" selection-start="3666" selection-end="3666" vertical-scroll-proportion="-26.36" vertical-offset="1276" max-vertical-offset="2025">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/mongodb.coffee">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="0" selection-start="495" selection-end="595" vertical-scroll-proportion="-18.0" vertical-offset="0" max-vertical-offset="1470">
           <folding />
         </state>
       </provider>
@@ -389,9 +393,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/dbconnect.coffee">
+    <entry file="file://$PROJECT_DIR$/src/mongodb.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="0" selection-start="1194" selection-end="1194" vertical-scroll-proportion="-17.96" vertical-offset="121" max-vertical-offset="1170">
+        <state line="155" column="0" selection-start="4577" selection-end="4662" vertical-scroll-proportion="-79.76" vertical-offset="331" max-vertical-offset="2625">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.coffee">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="0" selection-start="82" selection-end="82" vertical-scroll-proportion="-2.4" vertical-offset="0" max-vertical-offset="150">
           <folding />
         </state>
       </provider>
@@ -403,9 +414,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/mongodb.coffee">
+    <entry file="file://$PROJECT_DIR$/test/mongodb.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="75" column="42" selection-start="2141" selection-end="2141" vertical-scroll-proportion="0.32510886" vertical-offset="901" max-vertical-offset="2430">
+        <state line="30" column="0" selection-start="495" selection-end="595" vertical-scroll-proportion="-18.0" vertical-offset="0" max-vertical-offset="1470">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/dbconnect.coffee">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="37" column="0" selection-start="1145" selection-end="1145" vertical-scroll-proportion="0.8055152" vertical-offset="0" max-vertical-offset="1260">
           <folding />
         </state>
       </provider>

@@ -116,8 +116,11 @@ class MongoDBDriver extends DBConnect
       throw new Error("MongoDBDriver.unknown_prepare_special_args: #{JSON.stringify(args)}")
   prepareStmt: (stmt) ->
     (args, cb) ->
-      normalized = @mergeQuery stmt, args
-      @_query normalized, cb
+      try
+        normalized = @mergeQuery stmt, args
+        @_query normalized, cb
+      catch e
+        cb e
   mergeQuery: (stmt, args) ->
     helper = (obj, args) ->
       if obj instanceof Object
@@ -132,8 +135,18 @@ class MongoDBDriver extends DBConnect
         res
       else
         obj
+    verifyRequired = (args, required = stmt.required) ->
+      helper = (args) ->
+        for key in required
+          if not args.hasOwnProperty(key)
+            throw new Error("missing_required_attribute: #{key} in #{JSON.stringify(args)}")
+      if args instanceof Array
+        helper item for item in args
+      else
+        helper args
+      args
     if stmt.insert
-      {insert: stmt.insert, args: args}
+      {insert: stmt.insert, args: verifyRequired(args, stmt.required)}
     else if stmt.select
       {select: stmt.select, query: helper(stmt.query, args)}
     else if stmt.selectOne
