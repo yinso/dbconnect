@@ -1,4 +1,5 @@
 _ = require 'underscore'
+uuid = require './uuid'
 
 class DBConnect
   @connTypes: {}
@@ -26,6 +27,7 @@ class DBConnect
   constructor: (args) ->
     @args = _.extend {}, @constructor.defaultOptions, args
     @prepared = {}
+    @currentUser = null
     @loadModule()
   loadModule: () ->
     loader = @args.loader
@@ -49,8 +51,13 @@ class DBConnect
   prepare: (key, func) ->
     if @prepared.hasOwnProperty(key)
       throw new Error("#{@constructor.name}.duplicate_prepare_stmt: #{key}")
+    if @hasOwnProperty(key)
+      throw new Error("#{@constructor.name}.duplicate_prepare_stmt: #{key}")
     if func instanceof Function
       @prepared[key] = func
+      @[key] = func
+    else
+      throw new Error("#{@constructor.name}.invalid_prepare_stmt_not_a_function: #{func}")
   prepareSpecial: (args...) ->
     @prepare args...
   disconnect: (cb) ->
@@ -58,6 +65,8 @@ class DBConnect
     @connect cb
   close: (cb) ->
     @disconnect cb
+  uuid: () ->
+    uuid.v4()
 
 module.exports = DBConnect
 

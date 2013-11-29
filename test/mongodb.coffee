@@ -25,7 +25,7 @@ describe 'can connect', () ->
 
   it 'can call prepared query', (done) ->
     try
-      conn.query 'getUser', {login: 'yc'}, (err, recs) ->
+      conn.getUser {login: 'yc'}, (err, recs) ->
         test.equal recs.length, 1
         done err
     catch e

@@ -64,6 +64,22 @@ class MongoDBDriver extends DBConnect
               cb null, recs
       catch e
         cb e
+    else if stmt.selectOne
+      try
+        if stmt.query instanceof Object
+          @inner.collection(stmt.selectOne).find(stmt.query or {}).toArray (err, recs) ->
+            if err
+              cb err
+            else
+              cb null, if recs.length > 0 then recs[0] else null
+        else
+          @inner.collection(stmt.selectOne).find().toArray (err, recs) ->
+            if err
+              cb err
+            else
+              cb null, if recs.length > 0 then recs[0] else null
+      catch e
+        cb e
     else if stmt.update
       try
         @inner.collection(stmt.update).update stmt.query or {}, {$set: stmt.$set}, {safe: true, multi: true}, (err, res) ->
@@ -94,14 +110,14 @@ class MongoDBDriver extends DBConnect
     else
       cb new Error("MongoDBDriver.query_unsupported_adhoc_query: #{stmt}")
   prepareSpecial: (key, args) ->
-    if _.find(['select', 'delete', 'update', 'insert', 'save'], ((key) -> args.hasOwnProperty(key)))
+    if _.find(['select', 'selectOne', 'delete', 'update', 'insert', 'save'], ((key) -> args.hasOwnProperty(key)))
       @prepare key, @prepareStmt args
     else
       throw new Error("MongoDBDriver.unknown_prepare_special_args: #{JSON.stringify(args)}")
   prepareStmt: (stmt) ->
-    (conn, args, cb) ->
-      normalized = conn.mergeQuery stmt, args
-      conn._query normalized, cb
+    (args, cb) ->
+      normalized = @mergeQuery stmt, args
+      @_query normalized, cb
   mergeQuery: (stmt, args) ->
     helper = (obj, args) ->
       if obj instanceof Object
@@ -120,6 +136,8 @@ class MongoDBDriver extends DBConnect
       {insert: stmt.insert, args: args}
     else if stmt.select
       {select: stmt.select, query: helper(stmt.query, args)}
+    else if stmt.selectOne
+      {selectOne: stmt.selectOne, query: helper(stmt.query, args)}
     else if stmt.delete
       {delete: stmt.delete, query: helper(stmt.query, args)}
     else if stmt.update
