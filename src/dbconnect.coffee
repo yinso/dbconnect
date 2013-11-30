@@ -1,8 +1,10 @@
 _ = require 'underscore'
 uuid = require './uuid'
+{EventEmitter} = require 'events'
 
-class DBConnect
+class DBConnect extends EventEmitter
   @connTypes: {}
+  @uuid: uuid.v4
   @register: (type, connector) ->
     if @connTypes.hasOwnProperty(type)
       throw new Error("DBConnect.register_type_exists: #{type}")
@@ -46,7 +48,7 @@ class DBConnect
     else if loader instanceof Object
       for key, val of loader
         if loader.hasOwnProperty(key)
-          console.log 'dbconnect.loadModule', key, val
+          #console.log 'dbconnect.loadModule', key, val
           if val instanceof Function
             @prepare key, val
           else
@@ -76,8 +78,7 @@ class DBConnect
     @connect cb
   close: (cb) ->
     @disconnect cb
-  uuid: () ->
-    uuid.v4()
+  uuid: uuid.v4
 
 module.exports = DBConnect
 

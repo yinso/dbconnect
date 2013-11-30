@@ -2,13 +2,33 @@ mongodb = require 'mongodb'
 DBConnect = require './dbconnect'
 _ = require 'underscore'
 
+# we do not want to kill the connection unti
 class MongoDBDriver extends DBConnect
   @defaultOptions:
     host: '127.0.0.1'
     port: 27017
     database: 'test'
+  @connections: {}
+  id: () ->
+    {host, port, database} = @args
+    "#{host}:#{port}/#{database}"
+  @hasConn: (id) ->
+    if @connections.hasOwnProperty(id)
+      @connections[id]
+    else
+      undefined
+  @setConn: (id, conn) ->
+    @connections[id] = conn
   connect: (cb) ->
+    conn = @constructor.hasConn @id()
+    if conn
+      @inner = conn
+      cb null, @
+    else
+      @innerConnect cb
+  innerConnect: (cb) ->
     {host, port, database, queries} = @args
+    id = @id()
     try
       server = new mongodb.Server host or '127.0.0.1', port or 27017
       conn = new mongodb.Db database or 'test', server
@@ -18,16 +38,17 @@ class MongoDBDriver extends DBConnect
           cb err
         else
           @inner = inner
+          @constructor.setConn id, inner
+          process.on 'exit', () ->
+            console.log 'closing mongodb', id
+            console.log 'done'
+            inner.close()
           cb null, @
     catch e
-      console.log 'ERROR: MongoConnection.connect', e
+      console.error 'ERROR: MongoConnection.connect', e
       cb e
   disconnect: (cb) ->
-    try
-      @inner.close()
-      cb null
-    catch e
-      cb e
+    cb null
   # query:
   # {insert: 'table', args: [ list_of_recs ] }
   # {update: 'table', $set: <set_exp>, query: <query_exp> }

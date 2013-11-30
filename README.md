@@ -116,6 +116,13 @@ we just have to call the following.
 
     conn.query('getUser', {id: 5}, cb);
 
+As a matter of fact, `getUser` is also now available from `conn` itself
+
+    conn.getUser({id: 5}, cb);
+
+Yes, `prepare` is equivalent of an extension method. So take care when you are choosing the name of the query,
+you don't want to override the existing methods on the `conn` object and its prototype.
+
 ## Module for Prepare Statements
 
 You can organize all your prepare statements in a module, and specify it in the `module` parameter of the option object
@@ -129,7 +136,7 @@ The module can export the following
 ## Special Prepare
 
 There is one more function that's called `prepareSpecial`, and this is driver-specific helper to handle mundane task
-of geneating prepare statement.
+of generating prepare statement.
 
 For example, the following is what `prepareSpecial` does for MongoDBDriver.
 
