@@ -113,7 +113,29 @@ class DBConnect extends EventEmitter
             cb null, res
     catch e
       cb e
-    # first let's make the object from via
+  update: (tableName, obj, cb) ->
+    try
+      if not @schema
+        return cb new Error("dbconnect.update:schema_missing")
+      table = @schema.hasTable(tableName)
+      if not table
+        return cb new Error("dbconnect:update:unknown_table: #{tableName}")
+      res = table.make obj
+      if @prepared.hasOwnProperty("#{tableName}_Update")
+        @query "#{tableName}_Update", res, (err, results) =>
+          if err
+            cb err
+          else
+            cb null, res # res here or
+      else # we'll have to generate an adhoc query?
+        query = @generateUpdate table, res
+        @query query, {}, (err, results) =>
+          if err
+            cb err
+          else
+            cb null, res
+    catch e
+      cb e
   delete: (tableName, obj, cb) ->
     try
       if not @schema
@@ -156,6 +178,28 @@ class DBConnect extends EventEmitter
             cb err
           else
             cb null, (@schema.makeRecord(@, tableName, res) for res in results)
+    catch e
+      cb e
+  selectOne: (tableName, query, cb) ->
+    try
+      if not @schema
+        return cb new Error("dbconnect.selectOne:schema_missing")
+      table = @schema.hasTable(tableName)
+      if not table
+        return cb new Error("dbconnect:selectOne:unknown_table: #{tableName}")
+      if @prepared.hasOwnProperty("#{tableName}_Select")
+        @query "#{tableName}_SelectOne", res, (err, results) =>
+          if err
+            cb err
+          else
+            cb null, results # res here or
+      else # we'll have to generate an adhoc query?
+        query = @generateSelectOne table, query
+        @query query, {}, (err, rec) =>
+          if err
+            cb err
+          else
+            cb null, @schema.makeRecord(@, tableName, rec)
     catch e
       cb e
   uuid: uuid.v4

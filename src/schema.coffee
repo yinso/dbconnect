@@ -204,6 +204,11 @@ class Table
       throw new Error("Table_cannot_have_multiple_primary_keys")
     index.primary = true
     @primary = index
+  hasUnique: () ->
+    for key, index of @indexes
+      if index.unique
+        return index
+    undefined
   serialize: () ->
     for col in @columns
       col.serialize()
@@ -224,15 +229,57 @@ class Table
 class ActiveRecord extends EventEmitter
   constructor: (@table, @db, @record) ->
     @changed = false
-  update: (key, val) ->
-    @record[key] = val
+    @updated = {}
+  set: (key, val) ->
+    if arguments.length == 2
+      @setOne key, val
+    else if arguments[0] instanceof Object
+      for k, v of key
+        @setOne k, v
+    else
+      throw new Error("ActiveRecord.set:invalid_args: #{key}, #{val}")
+  setOne: (key, val) ->
+    col = @table.hasColumn key
+    if col and not col.convertable(val)
+      throw new Error("#{table.name}.#{col.name}:fail_validation: #{val}")
+    @updated[key] = val
     @changed = true
+  get: (key) ->
+    if @updated.hasOwnProperty(key)
+      @updated[key]
+    else if @record.hasOwnProperty(key)
+      @record[key]
+    else
+      undefined
+  idQuery: () ->
+    primary = @table.hasPrimary()
+    if primary
+      @_idQuery primary
+    else # get the first
+      unique = @table.hasUnique()
+      if unique
+        @_idQuery unique
+      else
+        @record
+  _idQuery: (index) ->
+    obj = {}
+    for col in index.columns
+      obj[col] = @record[col]
+    obj
   delete: (cb) ->
     @db.delete @table.name, @record, cb
   save: (cb) ->
     if @changed
-      @db.update @table.name, @record, cb
-
+      @db.update @table.name, @updated, @idQuery(), (err, res) =>
+        if err
+          cb err
+        else
+          _.extend @record, @updated
+          @updated = {}
+          @changed = false
+          cb null, @
+    else
+      cb null, @
 
 class Schema
   @builtInTypes: {}

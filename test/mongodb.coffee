@@ -12,6 +12,8 @@ DBConnect.setup
   database: 'auth'
   schema: schemaInit(schema)
 
+user = null
+
 describe 'can connect', () ->
   it 'can connect', (done) ->
     try
@@ -86,13 +88,20 @@ describe 'can connect', () ->
     catch e
       done e
 
-  it 'can select via .select', (done) ->
+  it 'can select via .select()', (done) ->
     try
-      conn.select 'User', {login: 'yc'}, (err, res) ->
-        console.log 'conn.select', err, res
-        done err
+      conn.selectOne 'User', {login: 'yc'}, (err, res) ->
+        console.log 'conn.selectOne', err, res
+        if err
+          done err
+        else
+          user = res
+          console.log 'conn.user = ', user
+          done null
     catch e
       done e
+
+  #it 'can save via .save()'
 
   it 'can remove', (done) ->
     try

@@ -98,13 +98,17 @@ class MongoDBDriver extends DBConnect
             if err
               cb err
             else
-              cb null, if recs.length > 0 then recs[0] else null
+              rec = if recs.length > 0 then recs[0] else null
+              console.log 'MongoDBDriver.selectOne', stmt, rec
+              cb null, rec
         else
           @inner.collection(table).find().toArray (err, recs) ->
             if err
               cb err
             else
-              cb null, if recs.length > 0 then recs[0] else null
+              rec = if recs.length > 0 then recs[0] else null
+              console.log 'MongoDBDriver.selectOne', stmt, rec
+              cb null, rec
       catch e
         cb e
     else if stmt.update
@@ -200,11 +204,12 @@ class MongoDBDriver extends DBConnect
         throw new Error("dbconnect.query:unknown_column: #{key}")
     {selectOne: table.name, query: query}
   generateInsert: (table, rec) ->
-
-  generateUpdate: (table, rec) ->
-
-  generateDelete: (table, rec) ->
-
+    obj = table.make rec
+    {insert: table.name, args: obj}
+  generateUpdate: (table, rec, query) ->
+    {update: table.name, query: query, $set: rec}
+  generateDelete: (table, query) ->
+    {delete: table.name, query: query}
 
 
 
