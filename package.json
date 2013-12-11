@@ -18,7 +18,9 @@
   "dependencies": {
     "coffee-script": "=1.4.0",
     "underscore": "=1.4.3",
-    "mongodb": "=1.2.14"
+    "mongodb": "=1.2.14",
+    "node-uuid": "=1.4.1",
+    "async": "=0.2.9"
   },
   "devDependencies": {
     "testlet": "~ 0.1.5",

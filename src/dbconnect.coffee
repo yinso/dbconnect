@@ -1,8 +1,10 @@
 _ = require 'underscore'
 uuid = require './uuid'
 {EventEmitter} = require 'events'
+Schema = require './schema'
 
 class DBConnect extends EventEmitter
+  @Schema: Schema
   @connTypes: {}
   @uuid: uuid.v4
   @register: (type, connector) ->
@@ -34,8 +36,14 @@ class DBConnect extends EventEmitter
     else
       args = @inners[args]
       type = @connTypes[args.type]
-      new type(args)
+      conn = new type(args)
+      if args.schema instanceof Schema
+        conn.attachSchema args.schema
+      if args.tableName instanceof Function
+        conn.tableName = args.tableName
+      conn
   @defaultOptions: {}
+  tableName: (name) -> name
   constructor: (args) ->
     @args = _.extend {}, @constructor.defaultOptions, args
     @prepared = {}
@@ -55,6 +63,10 @@ class DBConnect extends EventEmitter
             @prepareSpecial key, val
     else # OK if no loader
       return
+  attachSchema: (schema) ->
+    if not (schema instanceof Schema)
+      throw new Error("attachSchema:not_a_schema #{schema}")
+    @schema = schema
   connect: (cb) ->
   query: (stmt, args, cb) ->
     if @prepared.hasOwnProperty(stmt)
@@ -78,6 +90,74 @@ class DBConnect extends EventEmitter
     @connect cb
   close: (cb) ->
     @disconnect cb
+  insert: (tableName, obj, cb) ->
+    try
+      if not @schema
+        return cb new Error("dbconnect.insert:schema_missing")
+      table = @schema.hasTable(tableName)
+      if not table
+        return cb new Error("dbconnect:insert:unknown_table: #{tableName}")
+      res = table.make obj
+      if @prepared.hasOwnProperty("#{tableName}_Insert")
+        @query "#{tableName}_Insert", res, (err, results) =>
+          if err
+            cb err
+          else
+            cb null, res # res here or
+      else # we'll have to generate an adhoc query?
+        query = @generateInsert table, res
+        @query query, {}, (err, results) =>
+          if err
+            cb err
+          else
+            cb null, res
+    catch e
+      cb e
+    # first let's make the object from via
+  delete: (tableName, obj, cb) ->
+    try
+      if not @schema
+        return cb new Error("dbconnect.delete:schema_missing")
+      table = @schema.hasTable(tableName)
+      if not table
+        return cb new Error("dbconnect:delete:unknown_table: #{tableName}")
+      if @prepared.hasOwnProperty("#{tableName}_Delete")
+        @query "#{tableName}_Delete", res, (err, results) =>
+          if err
+            cb err
+          else
+            cb null, res # res here or
+      else # we'll have to generate an adhoc query?
+        query = @generateDelete table, obj
+        @query query, {}, (err) =>
+          if err
+            cb err
+          else
+            cb null
+    catch e
+      cb e
+  select: (tableName, query, cb) ->
+    try
+      if not @schema
+        return cb new Error("dbconnect.select:schema_missing")
+      table = @schema.hasTable(tableName)
+      if not table
+        return cb new Error("dbconnect:select:unknown_table: #{tableName}")
+      if @prepared.hasOwnProperty("#{tableName}_Select")
+        @query "#{tableName}_Select", res, (err, results) =>
+          if err
+            cb err
+          else
+            cb null, results # res here or
+      else # we'll have to generate an adhoc query?
+        query = @generateSelect table, query
+        @query query, {}, (err, results) =>
+          if err
+            cb err
+          else
+            cb null, (@schema.makeRecord(@, tableName, res) for res in results)
+    catch e
+      cb e
   uuid: uuid.v4
 
 module.exports = DBConnect

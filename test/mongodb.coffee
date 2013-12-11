@@ -1,4 +1,7 @@
 DBConnect = require '../src/main'
+schemaInit = require '../example/schema'
+
+schema = new DBConnect.Schema('auth')
 
 conn = null
 
@@ -6,6 +9,8 @@ DBConnect.setup
   name: 'test'
   type: 'mongo'
   module: '../example/mongodb'
+  database: 'auth'
+  schema: schemaInit(schema)
 
 describe 'can connect', () ->
   it 'can connect', (done) ->
@@ -77,6 +82,14 @@ describe 'can connect', () ->
     try
       conn.query {save: 'test', args: {abc: 2, id: 2}}, (err, recs) ->
         console.log err, recs
+        done err
+    catch e
+      done e
+
+  it 'can select via .select', (done) ->
+    try
+      conn.select 'User', {login: 'yc'}, (err, res) ->
+        console.log 'conn.select', err, res
         done err
     catch e
       done e

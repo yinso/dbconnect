@@ -144,3 +144,43 @@ For example, the following is what `prepareSpecial` does for MongoDBDriver.
 * the prepare function closes over the object and use it for converting the incoming args into the appropriate query object
   then pass into `.query`.
 
+## ORM & Schema
+
+`dbconnect` has its own mini-ORM. You can access it via the `DBConnect.Schema` object.
+
+    // create a schema object.
+    var schema = new DBConnect.Schema('test');
+
+    // add table
+
+    schema.defineTable('User', [
+        {col: 'uuid', type: 'uuid', default: {proc: 'makeUUID'}, primary: true}
+        {col: 'login', type: 'string', unique: true}
+        // more columns ...
+    ], {
+        // class
+    });
+
+    // ... more schema options.
+
+    DBConnect.setup({
+        name: 'test',
+        type: 'mongo',
+        schema: schema // NOTE - adding schema here.
+    });
+
+    var conn = DBConnect.make('test');
+
+    // now the schema object is accessible via conn.schema
+
+    // insert a record into User table
+    // NOTE - these functions will throw error unless a schema object is registered.
+    conn.insert('User', {login: 'foobar'}, // NOTE - uuid has a default function to auto-generate an UUID.
+      function(err, user) {
+        // ...
+
+
+
+        conn.delete('User', user, function(err, user) { ... });
+      });
+
