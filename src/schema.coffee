@@ -196,7 +196,10 @@ class Table
       def
   hasColumn: (col) ->
     console.log 'Table.hasColumn', col, @columns
-    @columns.hasOwnProperty(col)
+    if @columns.hasOwnProperty(col)
+      @columns[col]
+    else
+      undefined
   hasPrimary: ()  ->
     @primary
   setPrimary: (index) ->
@@ -240,7 +243,7 @@ class ActiveRecord extends EventEmitter
       throw new Error("ActiveRecord.set:invalid_args: #{key}, #{val}")
   setOne: (key, val) ->
     col = @table.hasColumn key
-    if col and not col.convertable(val)
+    if col and not col.validate(val)
       throw new Error("#{table.name}.#{col.name}:fail_validation: #{val}")
     @updated[key] = val
     @changed = true
@@ -270,7 +273,8 @@ class ActiveRecord extends EventEmitter
     @db.delete @table.name, @record, cb
   save: (cb) ->
     if @changed
-      @db.update @table.name, @updated, @idQuery(), (err, res) =>
+      query = @db.generateUpdate @table, @updated, @idQuery()
+      @db.query query, {}, (err, res) =>
         if err
           cb err
         else

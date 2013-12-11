@@ -91,17 +91,38 @@ describe 'can connect', () ->
   it 'can select via .select()', (done) ->
     try
       conn.selectOne 'User', {login: 'yc'}, (err, res) ->
-        console.log 'conn.selectOne', err, res
         if err
           done err
         else
           user = res
-          console.log 'conn.user = ', user
           done null
     catch e
       done e
 
-  #it 'can save via .save()'
+  it 'can save via .save()', (done) ->
+    try
+      user.set
+        email: 'test@gmail.com'
+        firstName: 'yinso'
+        lastName: 'chen'
+      user.save (err, res) ->
+        if err
+          done err
+        else
+          conn.selectOne 'User', {login: 'yc'}, (err, res) ->
+            if err
+              done err
+            else
+              try
+                console.log 'updated_user', res
+                test.equal res.get('email'), user.get('email')
+                test.equal res.get('firstName'), user.get('firstName')
+                test.equal res.get('lastName'), user.get('lastName')
+                done null
+              catch err
+                done err
+    catch e
+      done e
 
   it 'can remove', (done) ->
     try
