@@ -152,7 +152,7 @@ class Table
     delete @indexes
     @columns.destroy()
   ensureColumnNames: (columns) ->
-    console.log 'ensureColumNames', columns
+    #console.log 'ensureColumNames', columns
     names = {}
     for col in columns
       if names.hasOwnProperty(col.col)
@@ -195,7 +195,7 @@ class Table
     else
       def
   hasColumn: (col) ->
-    console.log 'Table.hasColumn', col, @columns
+    #console.log 'Table.hasColumn', col, @columns
     if @columns.hasOwnProperty(col)
       @columns[col]
     else
@@ -219,7 +219,7 @@ class Table
     for col in @columns
       col.validate val[col.name]
   make: (val) ->
-    console.log "#{@name}.make", val
+    #console.log "#{@name}.make", val
     obj = {}
     for col in @columns
       obj[col.name] = col.make val[col.name]
@@ -232,22 +232,27 @@ class Table
 class ActiveRecord extends EventEmitter
   constructor: (@table, @db, @record) ->
     @changed = false
+    @deleted = false
     @updated = {}
   set: (key, val) ->
+    if @deleted
+      throw new Error("ActiveRecord.set:record_already_deleted")
     if arguments.length == 2
-      @setOne key, val
+      @_setOne key, val
     else if arguments[0] instanceof Object
       for k, v of key
-        @setOne k, v
+        @_setOne k, v
     else
       throw new Error("ActiveRecord.set:invalid_args: #{key}, #{val}")
-  setOne: (key, val) ->
+  _setOne: (key, val) ->
     col = @table.hasColumn key
     if col and not col.validate(val)
       throw new Error("#{table.name}.#{col.name}:fail_validation: #{val}")
     @updated[key] = val
     @changed = true
   get: (key) ->
+    if @deleted
+      throw new Error("ActiveRecord.get:record_already_deleted")
     if @updated.hasOwnProperty(key)
       @updated[key]
     else if @record.hasOwnProperty(key)
@@ -255,6 +260,8 @@ class ActiveRecord extends EventEmitter
     else
       undefined
   idQuery: () ->
+    if @deleted
+      throw new Error("ActiveRecord.idQuery:record_already_deleted")
     primary = @table.hasPrimary()
     if primary
       @_idQuery primary
@@ -269,9 +276,17 @@ class ActiveRecord extends EventEmitter
     for col in index.columns
       obj[col] = @record[col]
     obj
-  delete: (cb) ->
-    @db.delete @table.name, @record, cb
+  update: (keyVals, cb) ->
+    if @deleted
+      return cb new Error("ActiveRecord.update:record_already_deleted")
+    try
+      @set keyVals
+      @save cb
+    catch e
+      cb e
   save: (cb) ->
+    if @deleted
+      return cb new Error("ActiveRecord.save:record_already_deleted")
     if @changed
       query = @db.generateUpdate @table, @updated, @idQuery()
       @db.query query, {}, (err, res) =>
@@ -284,10 +299,21 @@ class ActiveRecord extends EventEmitter
           cb null, @
     else
       cb null, @
+  delete: (cb) ->
+    if @deleted
+      return cb new Error("ActiveRecord.delete:record_already_deleted")
+    query = @db.generateDelete @table, @idQuery()
+    @db.query query, {}, (err, res) =>
+      if err
+        cb err
+      else
+        @deleted = true
+        cb null
 
 class Schema
   @builtInTypes: {}
   @builtInFunctions: {}
+  @Record: ActiveRecord
   @registerType: (name, type) ->
     if @builtInTypes.hasOwnProperty(name)
       throw new Error("built_type_duplicate: #{name}")
@@ -451,10 +477,6 @@ Schema.registerFunction 'randomBytes', (size = 32) ->
     for byte in bytes
       b2h[byte]
   toHex(crypto.randomBytes(size)).join('')
-
-
-Schema.Record = ActiveRecord
-
 
 
 module.exports = Schema

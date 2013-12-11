@@ -20,7 +20,7 @@ dependencies:
   async: '=0.2.9'
   validator: '=2.0.0'
 devDependencies:
-  testlet: '~ 0.1.5'
+  testlet: '~ 0.1.7'
   'coffee-bean': '=0.1.0'
 
 

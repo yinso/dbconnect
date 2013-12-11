@@ -1,4 +1,4 @@
 module.exports =
   getUser:
-    select: 'user'
+    select: 'User'
     query: {login: ':login'}

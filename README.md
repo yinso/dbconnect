@@ -157,9 +157,7 @@ For example, the following is what `prepareSpecial` does for MongoDBDriver.
         {col: 'uuid', type: 'uuid', default: {proc: 'makeUUID'}, primary: true}
         {col: 'login', type: 'string', unique: true}
         // more columns ...
-    ], {
-        // class
-    });
+    ]);
 
     // ... more schema options.
 
@@ -183,4 +181,19 @@ For example, the following is what `prepareSpecial` does for MongoDBDriver.
 
         conn.delete('User', user, function(err, user) { ... });
       });
+
+The object returned by `conn.insert` is an `DBConnect.Schema.Record` object, which also holds the table it represents
+as well as the connection object, so it can perform the following functions.
+
+    // the object returned is user
+    user.update({key: val, ...}, function(err) { /* callback */ });
+
+    user.delete(function(err) { /* callback */ });
+
+
+
+
+
+
+
 

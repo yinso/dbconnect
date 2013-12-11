@@ -91,6 +91,7 @@ class DBConnect extends EventEmitter
   close: (cb) ->
     @disconnect cb
   insert: (tableName, obj, cb) ->
+    console.log 'DBConnect.insert', tableName, obj
     try
       if not @schema
         return cb new Error("dbconnect.insert:schema_missing")
@@ -103,14 +104,17 @@ class DBConnect extends EventEmitter
           if err
             cb err
           else
-            cb null, res # res here or
+            if results instanceof Array
+              cb null, (@schema.makeRecord(@, tableName, rec) for rec in results)
+            else
+              cb null, @schema.makeRecord(@, tableName, results)
       else # we'll have to generate an adhoc query?
         query = @generateInsert table, res
         @query query, {}, (err, results) =>
-          if err
-            cb err
+          if results instanceof Array
+            cb null, (@schema.makeRecord(@, tableName, rec) for rec in results)
           else
-            cb null, res
+            cb null, @schema.makeRecord(@, tableName, results)
     catch e
       cb e
   delete: (tableName, obj, cb) ->

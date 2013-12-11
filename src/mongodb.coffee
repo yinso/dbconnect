@@ -70,12 +70,13 @@ class MongoDBDriver extends DBConnect
           if err
             cb err
           else
-            cb null, res
+            cb null, (if stmt.args instanceof Array then res else res[0])
       catch e
         cb e
     else if stmt.select
       try
         table = @tableName stmt.select
+        #console.log 'MongoDBDriver._query:select', table, args
         if stmt.query instanceof Object
           @inner.collection(table).find(stmt.query or {}).toArray (err, recs) ->
             if err
@@ -99,7 +100,7 @@ class MongoDBDriver extends DBConnect
               cb err
             else
               rec = if recs.length > 0 then recs[0] else null
-              console.log 'MongoDBDriver.selectOne', stmt, rec
+              #console.log 'MongoDBDriver.selectOne', stmt, rec
               cb null, rec
         else
           @inner.collection(table).find().toArray (err, recs) ->
@@ -107,7 +108,7 @@ class MongoDBDriver extends DBConnect
               cb err
             else
               rec = if recs.length > 0 then recs[0] else null
-              console.log 'MongoDBDriver.selectOne', stmt, rec
+              #console.log 'MongoDBDriver.selectOne', stmt, rec
               cb null, rec
       catch e
         cb e
