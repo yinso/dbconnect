@@ -90,6 +90,12 @@ class DBConnect extends EventEmitter
     @connect cb
   close: (cb) ->
     @disconnect cb
+  beginTrans: (cb) ->
+    cb null, @
+  commit: (cb) ->
+    cb null, @
+  rollback: (cb) ->
+    cb null, @
   insert: (tableName, obj, cb) ->
     console.log 'DBConnect.insert', tableName, obj
     try

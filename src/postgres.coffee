@@ -19,9 +19,23 @@ class PostgresDriver extends DBConnect
     else
       "postgres://#{host}:#{port}/#{database}"
   tableName: (name) ->
-    name.toLowerCase() + "_t"
+    # TableName
+    # ==>
+    # table_name_t
+    splitted = name.split /([A-Z]+)/ # allow for consecutive capital chars to stay together.
+    i = 0
+    normalized =
+      for str in splitted
+        if str.match /[A-Z]+/
+          if i++ == 0
+            str.toLowerCase()
+          else
+            "_" + str.toLowerCase()
+        else
+          str
+    #console.log 'PostgresDRiver.tableName', name, splitted, normalized
+    normalized.join('') + "_t"
   connect: (cb) ->
-    # using the pool method by default.
     postgres.connect @connString(), (err, client, done) =>
       if err
         cb err
@@ -29,7 +43,6 @@ class PostgresDriver extends DBConnect
         @inner = client
         @done = done
         cb null, @
-  # what is it that I want to do with the tables???
   _query: (stmt, args, cb) ->
     # we'll need to parse the query to convert $key to $n
     parsed = @parseStmt stmt, args
@@ -69,6 +82,12 @@ class PostgresDriver extends DBConnect
       cb null
     catch e
       cb e
+  beginTrans: (cb) ->
+    @_query 'begin', {}, cb
+  commit: (cb) ->
+    @_query 'commit', {}, cb
+  rollback: (cb) ->
+    @_query 'rollback', {}, cb
   ensureColumns: (table, kv) ->
     for key, val of kv
       if not table.hasColumn key

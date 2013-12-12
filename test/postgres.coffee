@@ -103,6 +103,16 @@ describe 'postgresql test', () ->
     catch e
       done e
 
+  it 'can select via .selectOne()', (done) ->
+    try
+      conn.selectOne 'User', {email: 'testa.testing111@gmail.com'}, (err, u) ->
+        if err
+          done err
+        else
+          user = u
+          done null
+    catch e
+
   it 'can update via .update()', (done) ->
     try
       user.update {email: 'test@gmail.com'}, (err) ->
@@ -120,6 +130,28 @@ describe 'postgresql test', () ->
           done err
         else
           done null
+    catch e
+      done e
+
+  it 'can issue transaction', (done) ->
+    try
+      conn.beginTrans (err) ->
+        if err
+          done err
+        else
+          conn.query "insert into test1 (col1, col2) values ($col1, $col2)", {col1: 1, col2: 2}, (err) ->
+            if err
+              done err
+            else
+              conn.commit (err) ->
+                if err
+                  done err
+                else
+                  conn.query 'delete from test1', {}, (err) ->
+                    if err
+                      done err
+                    else
+                      done null
     catch e
       done e
 
