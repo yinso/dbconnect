@@ -103,6 +103,16 @@ describe 'postgresql test', () ->
     catch e
       done e
 
+  it 'can update via .update()', (done) ->
+    try
+      user.update {email: 'test@gmail.com'}, (err) ->
+        if err
+          done err
+        else
+          done null
+    catch e
+      done e
+
   it 'can delete via .delete()', (done) ->
     try
       user.delete (err) ->

@@ -117,11 +117,11 @@ class PostgresDriver extends DBConnect
       {stmt: "select * from #{@tableName(table.name)} where #{stmt}", args: query, selectOne: true}
   generateUpdate: (table, setExp, query) ->
     @ensureColumns table, setExp
-    setGen = @criteriaQuery query, ', '
+    setGen = @criteriaQuery setExp, ', '
     if Object.keys(query).length == 0
       {stmt: "update #{@tableName(table.name)} set #{setGen}", args: setExp}
     else
-      @ensureColumsn table, query
+      @ensureColumns table, query
       queryGen = @criteriaQuery query
       {stmt: "update #{@tableName(table.name)} set #{setGen} where #{queryGen}", args: _.extend({}, setExp, query)}
 

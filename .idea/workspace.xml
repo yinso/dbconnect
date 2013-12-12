@@ -68,19 +68,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="postgres.coffee" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="postgres.coffee" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/postgres.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="42" column="0" selection-start="1336" selection-end="1336" vertical-scroll-proportion="-10.76" vertical-offset="361" max-vertical-offset="2070">
+            <state line="124" column="0" selection-start="4408" selection-end="4408" vertical-scroll-proportion="0.69521046" vertical-offset="1381" max-vertical-offset="2070">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="postgres.coffee" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="postgres.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/postgres.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="106" column="7" selection-start="2655" selection-end="2655" vertical-scroll-proportion="0.69521046" vertical-offset="1111" max-vertical-offset="1905">
+            <state line="114" column="0" selection-start="2802" selection-end="2802" vertical-scroll-proportion="-23.96" vertical-offset="1111" max-vertical-offset="2055">
               <folding />
             </state>
           </provider>
@@ -137,8 +137,8 @@
         <option value="$PROJECT_DIR$/example/schema.coffee" />
         <option value="$PROJECT_DIR$/src/schema.coffee" />
         <option value="$PROJECT_DIR$/src/dbconnect.coffee" />
-        <option value="$PROJECT_DIR$/src/postgres.coffee" />
         <option value="$PROJECT_DIR$/test/postgres.coffee" />
+        <option value="$PROJECT_DIR$/src/postgres.coffee" />
       </list>
     </option>
   </component>
@@ -439,16 +439,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/postgres.coffee">
+    <entry file="file://$PROJECT_DIR$/test/postgres.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="0" selection-start="1336" selection-end="1336" vertical-scroll-proportion="-10.76" vertical-offset="361" max-vertical-offset="2070">
+        <state line="114" column="0" selection-start="2802" selection-end="2802" vertical-scroll-proportion="-23.96" vertical-offset="1111" max-vertical-offset="2055">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/postgres.coffee">
+    <entry file="file://$PROJECT_DIR$/src/postgres.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="106" column="7" selection-start="2655" selection-end="2655" vertical-scroll-proportion="0.69521046" vertical-offset="1111" max-vertical-offset="1905">
+        <state line="124" column="0" selection-start="4408" selection-end="4408" vertical-scroll-proportion="0.69521046" vertical-offset="1381" max-vertical-offset="2070">
           <folding />
         </state>
       </provider>
