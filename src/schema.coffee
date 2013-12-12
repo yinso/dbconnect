@@ -478,5 +478,6 @@ Schema.registerFunction 'randomBytes', (size = 32) ->
       b2h[byte]
   toHex(crypto.randomBytes(size)).join('')
 
+Schema.registerFunction 'makeUUID', uuid.v4
 
 module.exports = Schema
