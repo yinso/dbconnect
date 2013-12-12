@@ -228,6 +228,22 @@ class Table
       type.make obj
     else
       obj
+  idQuery: (query) ->
+    primary = @hasPrimary()
+    if primary
+      @_idQuery primary, query
+    else
+      unique = @hasUnique()
+      if unique
+        @_idQuery unique, query
+      else
+        query
+  _idQuery: (index, query) ->
+    obj = {}
+    for col in index.columns
+      obj[col] = query[col]
+    obj
+
 
 class ActiveRecord extends EventEmitter
   constructor: (@table, @db, @record) ->
@@ -262,20 +278,7 @@ class ActiveRecord extends EventEmitter
   idQuery: () ->
     if @deleted
       throw new Error("ActiveRecord.idQuery:record_already_deleted")
-    primary = @table.hasPrimary()
-    if primary
-      @_idQuery primary
-    else # get the first
-      unique = @table.hasUnique()
-      if unique
-        @_idQuery unique
-      else
-        @record
-  _idQuery: (index) ->
-    obj = {}
-    for col in index.columns
-      obj[col] = @record[col]
-    obj
+    @table.idQuery @record
   update: (keyVals, cb) ->
     if @deleted
       return cb new Error("ActiveRecord.update:record_already_deleted")

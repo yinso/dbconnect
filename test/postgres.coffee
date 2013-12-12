@@ -71,10 +71,45 @@ describe 'postgresql test', () ->
 
   it 'can use prepare statement', (done) ->
     try
+      conn.prepare 'selectTest', (args, cb) ->
+        @query "select * from test1 where col1 = $col1", args, cb
+      conn.selectTest {col1: 1}, done
+    catch e
+      done e
+
+  it 'can use prepare statement', (done) ->
+    try
       conn.prepare 'deleteTest', (args, cb) ->
         @query "delete from test1", args, cb
       conn.deleteTest {col1: 1, col2: 2}, (err, res) ->
         done err
+    catch e
+      done e
+  it 'can delete', (done) ->
+    try
+      conn.query 'delete from user_t', {}, done
+    catch e
+      done e
+
+  it 'can insert via .insert()', (done) ->
+    try
+      conn.insert 'User', {login: 'test', email: 'testa.testing111@gmail.com'}, (err, u) ->
+        console.log 'user.insert', err, u
+        if err
+          done err
+        else
+          user = u
+          done null
+    catch e
+      done e
+
+  it 'can delete via .delete()', (done) ->
+    try
+      user.delete (err) ->
+        if err
+          done err
+        else
+          done null
     catch e
       done e
 

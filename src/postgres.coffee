@@ -19,7 +19,7 @@ class PostgresDriver extends DBConnect
     else
       "postgres://#{host}:#{port}/#{database}"
   tableName: (name) ->
-    name.toLowerCase()
+    name.toLowerCase() + "_t"
   connect: (cb) ->
     # using the pool method by default.
     postgres.connect @connString(), (err, client, done) =>
@@ -32,9 +32,22 @@ class PostgresDriver extends DBConnect
   # what is it that I want to do with the tables???
   _query: (stmt, args, cb) ->
     # we'll need to parse the query to convert $key to $n
-    {stmt, args} = @parseStmt stmt, args
-    @inner.query stmt, args, cb
+    parsed = @parseStmt stmt, args
+    console.log 'Postgres._query', parsed.stmt, parsed.args
+    @inner.query parsed.stmt, parsed.args, (err, res) =>
+      console.log 'inner.query', parsed.stmt, parsed.args, err, res
+      if err
+        console.log 'inner.query.hasError', err
+        cb err
+      else if stmt.selectOne
+        cb null, res.rows[0]
+      else if stmt.next
+        @_query stmt.next, {}, cb
+      else
+        cb null, res.rows
   parseStmt: (stmt, args) ->
+    if stmt instanceof Object and stmt.stmt and stmt.args
+      {stmt, args} = stmt
     splitted = stmt.split /(\$[\w]+)/
     i = 1
     normalized = []
@@ -67,45 +80,50 @@ class PostgresDriver extends DBConnect
       args = table.make args
       @ensureColumns table, args
     keys = []
-    vals = []
     for key, val of args
       keys.push key
-      vals.push val
     columnText = keys.join(', ')
-    phText = ("$#{i}" for i in [1..vals.length]).join(', ')
-    {stmt: "insert into #{table.name} (#{columnText}) select #{phText}", args: vals}
-  criteriaQuery: (query, sep = ' and ', i = 1) ->
+    phText = ("$#{key}" for key in keys).join(', ')
+    # we'll also need a select statement for this guy... for this we should figure out the appropriate
+    # unique
+    idQuery = table.idQuery args
+    select = @generateSelectOne table, idQuery
+    {stmt: "insert into #{@tableName(table.name)} (#{columnText}) select #{phText}", args: args, next: select}
+  criteriaQuery: (query, sep = ' and ') ->
     criteria = []
-    vals = []
-    for keys, val of args
-      criteria.push "#{key} = $#{i++}"
-      vals.push val
-    {stmt: criteria.join(sep), args: vals}
+    for key, val of query
+      criteria.push "#{key} = $#{key}"
+    criteria.join(sep)
   generateDelete: (table, query) ->
-    @ensureColumns table, query
-    {stmt, args} = @criteriaQuery query
-    if args.length == 0
-      {stmt: "delete from #{table.name}", args: args}
+    if Object.keys(query).length == 0
+      {stmt: "delete from #{@tableName(table.name)}", args: query}
     else
-      {stmt: "delete from #{table.name} where #{stmt}", args: args}
+      @ensureColumns table, query
+      stmt = @criteriaQuery query
+      {stmt: "delete from #{@tableName(table.name)} where #{stmt}", args: query}
   generateSelect: (table, query) ->
-    @ensureColumns table, query
-    {stmt, args} = @criteriaQuery query
-    if args.length == 0
-      {stmt: "select * from #{table.name}", args: args}
+    if Object.keys(query).length == 0
+      {stmt: "select * from #{@tableName(table.name)}", args: query}
     else
-      {stmt: "select * from #{table.name} where #{stmt}", args: args}
+      @ensureColumns table, query
+      stmt = @criteriaQuery query
+      {stmt: "select * from #{@tableName(table.name)} where #{stmt}", args: query}
+  generateSelectOne: (table, query) ->
+    if Object.keys(query).length == 0
+      {stmt: "select * from #{@tableName(table.name)}", args: query, selectOne: true}
+    else
+      @ensureColumns table, query
+      stmt = @criteriaQuery query
+      {stmt: "select * from #{@tableName(table.name)} where #{stmt}", args: query, selectOne: true}
   generateUpdate: (table, setExp, query) ->
     @ensureColumns table, setExp
-    @ensureColumsn table, query
     setGen = @criteriaQuery query, ', '
-    queryGen = @criteriaQuery query, ' and ', setGen.args.length + 1
-    if queryGen.args.length == 0
-      {stmt: "update #{table.name} set #{setGen.stmt}", args: setGen.args}
+    if Object.keys(query).length == 0
+      {stmt: "update #{@tableName(table.name)} set #{setGen}", args: setExp}
     else
-      stmt: "update #{table.name} set #{setGen.stmt} where #{queryGen.stmt}"
-      args: setGen.args.concat(queryGen.args)
-
+      @ensureColumsn table, query
+      queryGen = @criteriaQuery query
+      {stmt: "update #{@tableName(table.name)} set #{setGen} where #{queryGen}", args: _.extend({}, setExp, query)}
 
 DBConnect.register 'postgres', PostgresDriver
 

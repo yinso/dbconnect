@@ -1,7 +1,7 @@
 module.exports = (schema) ->
 
   schema.defineTable 'User', [
-    {col: 'uuid', type: 'uuid', unique: true}
+    {col: 'uuid', type: 'uuid', default: {proc: 'makeUUID'}, unique: true}
     {col: 'login', type: 'string', unique: true}
     {col: 'email', type: 'email', unique: true}
   ]

@@ -110,11 +110,15 @@ class DBConnect extends EventEmitter
               cb null, @schema.makeRecord(@, tableName, results)
       else # we'll have to generate an adhoc query?
         query = @generateInsert table, res
-        @query query, {}, (err, results) =>
-          if results instanceof Array
-            cb null, (@schema.makeRecord(@, tableName, rec) for rec in results)
+        console.log 'DBConnect.insert.query', query, res
+        @query query, res, (err, results) =>
+          if err
+            cb err
           else
-            cb null, @schema.makeRecord(@, tableName, results)
+            if results instanceof Array
+              cb null, (@schema.makeRecord(@, tableName, rec) for rec in results)
+            else
+              cb null, @schema.makeRecord(@, tableName, results)
     catch e
       cb e
   delete: (tableName, obj, cb) ->
