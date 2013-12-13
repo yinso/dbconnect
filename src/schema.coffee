@@ -15,14 +15,22 @@ class Column
     @type = schemaType
     @optional = optional or false
     if @def.default
-      if @def.default instanceof Object
-        proc = @table.schema.hasFunction @def.default.proc
-        if not proc
-          throw new Error("unknown_default_function: #{@def.default.proc}")
-        @default = proc
-      else
-        @default = (cb) => @def.default
+      @default = @setupDefault @def.default
       @optional = true
+    if @def.update
+      @update = @setupDefault @def.update
+  setupDefault: (spec) ->
+    if spec instanceof Object
+      proc = @table.schema.hasFunction spec.proc
+      if not proc
+        throw new Error("unknown_default_function: #{@def.default.proc}")
+      if spec.args instanceof Array
+        args = spec.args
+        () -> proc args...
+      else
+        proc
+    else
+      () => spec
   destroy: () ->
     delete @table
     delete @type
@@ -268,13 +276,18 @@ class ActiveRecord extends EventEmitter
   set: (key, val) ->
     if @deleted
       throw new Error("ActiveRecord.set:record_already_deleted")
-    if arguments.length == 2
+    obj =
+      if arguments.length == 2
+        obj = {}
+        obj[key] = val
+        obj
+      else
+        key
+    for key, val of obj
       @_setOne key, val
-    else if arguments[0] instanceof Object
-      for k, v of key
-        @_setOne k, v
-    else
-      throw new Error("ActiveRecord.set:invalid_args: #{key}, #{val}")
+    for column, i in @table.columns
+      if column.update and not obj.hasOwnProperty(column.name)
+        @_setOne column.name, column.update()
   _setOne: (key, val) ->
     col = @table.hasColumn key
     if col and not col.validate(val)

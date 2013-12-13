@@ -213,9 +213,6 @@ class MongoDBDriver extends DBConnect
   generateDelete: (table, query) ->
     {delete: table.name, query: query}
 
-
-
-
 DBConnect.register 'mongo', MongoDBDriver
 
 module.exports = MongoDBDriver
