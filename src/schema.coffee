@@ -138,6 +138,16 @@ class Index
     else
       index.index = @columns
     index
+  referenceQuery: (keyvals) ->
+    if not @reference
+      throw new Error("Index.referenceQuery:not_a_foreign_key: #{@name}")
+    # first of all - create a mapping between the two sets of names.
+    obj = {}
+    mapping = {}
+    for col, i in @reference.columns
+      if keyvals.hasOwnProperty(col)
+        obj[@columns[i]] = keyvals[col]
+    obj
 
 class Table
   constructor: (@schema, @name, @defs, @mixin) ->
@@ -212,6 +222,11 @@ class Table
       if index.unique
         return index
     undefined
+  references: (table) ->
+    for key, index of @indexes
+      if index.reference?.table == table.name
+        return index
+    undefined
   serialize: () ->
     for col in @columns
       col.serialize()
@@ -275,6 +290,26 @@ class ActiveRecord extends EventEmitter
       @record[key]
     else
       undefined
+  select: (tableName, cb) ->
+    table = @table.schema.hasTable tableName
+    if not table
+      return cb new Error("ActiveRecord.select:unknown_table: #{tableName}")
+    index = table.references @table
+    if index # we have a reference.
+      query = index.referenceQuery @record
+      @db.select tableName, query, cb
+    else
+      cb new Error("ActiveRecord.select:tables_not_related: #{@table.name}, #{tableName}")
+  selectOne: (tableName, cb) ->
+    table = @table.schema.hasTable tableName
+    if not table
+      return cb new Error("ActiveRecord.selectOne:unknown_table: #{tableName}")
+    index = table.references @table
+    if index # we have a reference.
+      query = index.referenceQuery @record
+      @db.selectOne tableName, query, cb
+    else
+      cb new Error("ActiveRecord.selectOne:tables_not_related: #{@table.name}, #{tableName}")
   idQuery: () ->
     if @deleted
       throw new Error("ActiveRecord.idQuery:record_already_deleted")

@@ -141,6 +141,20 @@ describe 'postgresql test', () ->
     catch e
       done e
 
+  it 'can use record.selectOne()', (done) ->
+    try
+      user.selectOne 'Password', (err, p) ->
+        if err
+          done err
+        else
+          p.verify 'mock-password', (err) ->
+            if err
+              done err
+            else
+              done null
+    catch e
+      done e
+
   it 'can update via .update()', (done) ->
     try
       user.update {email: 'test@gmail.com'}, (err) ->
