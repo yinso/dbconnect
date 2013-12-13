@@ -92,27 +92,27 @@ describe 'postgresql test', () ->
       done e
 
   it 'can insert via .insert()', (done) ->
+    myDone = (err, res) ->
+      if err
+        conn.rollback () -> done err
+      else
+        conn.commit done
     try
       conn.beginTrans (err) ->
         if err
-          done err
+          myDone err
         else
           conn.insert 'User', {login: 'test', email: 'testa.testing111@gmail.com'}, (err, u) ->
             console.log 'user.insert', err, u
             if err
-              conn.rollback (e) ->
-                done err
+              myDone err
             else
               conn.insert 'Password', {salt: '0000000000', hash: '0000000000', userUUID: u.get('uuid')}, (err, p) ->
                 if err
-                  conn.rollback (e) -> done err
+                  myDone err
                 else
-                  conn.commit (err) ->
-                    if err
-                      conn.rollback (e) -> done err
-                    else
-                      user = u
-                      done null
+                  user = u
+                  myDone null
     catch e
       done e
 
@@ -166,42 +166,44 @@ describe 'postgresql test', () ->
       done e
 
   it 'can delete via .delete()', (done) ->
+    myDone = (err, res) ->
+      if err
+        conn.rollback () -> done err
+      else
+        conn.commit done
     try
       conn.beginTrans (err) ->
         if err
-          done err
+          myDone err
         else
           conn.query 'delete from password_t where userUUID = $uuid', {uuid: user.get('uuid')}, (err) ->
             if err
-              conn.rollback () -> done err
+              myDone err
             else
-              user.delete (err) ->
-                if err
-                  conn.rollback () -> done err
-                else
-                  conn.commit done
+              user.delete myDone
     catch e
       done e
 
   it 'can issue transaction', (done) ->
+    myDone = (err, res) ->
+      if err
+        conn.rollback () -> done err
+      else
+        conn.commit done
     try
       conn.beginTrans (err) ->
         if err
-          done err
+          myDone err
         else
           conn.query "insert into test1 (col1, col2) values ($col1, $col2)", {col1: 1, col2: 2}, (err) ->
             if err
-              done err
+              myDone err
             else
-              conn.commit (err) ->
+              conn.query 'delete from test1', {}, (err) ->
                 if err
-                  done err
+                  myDone err
                 else
-                  conn.query 'delete from test1', {}, (err) ->
-                    if err
-                      done err
-                    else
-                      done null
+                  myDone null
     catch e
       done e
 

@@ -92,6 +92,7 @@ class MongoDBDriver extends DBConnect
       catch e
         cb e
     else if stmt.selectOne
+      console.log 'MongoDBDriver.selectOne', stmt
       try
         table = @tableName stmt.selectOne
         if stmt.query instanceof Object

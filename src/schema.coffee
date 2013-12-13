@@ -310,6 +310,17 @@ class ActiveRecord extends EventEmitter
       @db.selectOne tableName, query, cb
     else
       cb new Error("ActiveRecord.selectOne:tables_not_related: #{@table.name}, #{tableName}")
+  insert: (tableName, args, cb) ->
+    table = @table.schema.hasTable tableName
+    if not table
+      return cb new Error("ActiveRecord.selectOne:unknown_table: #{tableName}")
+    index = table.references @table
+    if index # we have a reference.
+      query = index.referenceQuery @record
+      args = _.extend {}, args, query
+      @db.insert tableName, args, cb
+    else
+      cb new Error("ActiveRecord.insert:tables_not_related: #{@table.name}, #{tableName}")
   idQuery: () ->
     if @deleted
       throw new Error("ActiveRecord.idQuery:record_already_deleted")
@@ -506,17 +517,30 @@ class HEXSTRING
 
 Schema.registerType 'hexString', HEXSTRING
 
+class DATETIME
+  @convertable: (val) ->
+    check(val).isDate(val)
+  @make: (val) ->
+    if @convertable(val)
+      Date.parse(val)
+    else
+      throw new Error("invalid_datetime: #{val}")
+
+Schema.registerType 'datetime', DATETIME
+
+b2h = []
+h2b = {}
+for i in [0...256] by 1
+  b2h[i] = (i ^ 0x100).toString(16).substring(1)
+  h2b[b2h[i]] = i
+toHex = (bytes) ->
+  for byte in bytes
+    b2h[byte]
 Schema.registerFunction 'randomBytes', (size = 32) ->
-  b2h = []
-  h2b = {}
-  for i in [0...256] by 1
-    b2h[i] = (i ^ 0x100).toString(16).substring(1)
-    h2b[b2h[i]] = i
-  toHex = (bytes) ->
-    for byte in bytes
-      b2h[byte]
   toHex(crypto.randomBytes(size)).join('')
 
 Schema.registerFunction 'makeUUID', uuid.v4
+
+Schema.registerFunction 'now', () -> new Date()
 
 module.exports = Schema

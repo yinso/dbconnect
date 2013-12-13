@@ -2,7 +2,7 @@
 
 DBConnect is a simple database interface for NodeJS.
 
-By default DBConnect comes with MongoDB interface.
+By default DBConnect comes with MongoDB and Postgresql interface.
 
 # Installation
 
@@ -77,7 +77,7 @@ The database query is specific to the underlying driver. For example, the built-
     // for delete
     conn.query({delete: 'table', query: {id: 3}}, cb);
 
-For a RDBMS it would look like the following
+For the Postgresql driver it would look like the following
 
     conn.query("select * from table", cb);
 
@@ -190,9 +190,38 @@ as well as the connection object, so it can perform the following functions.
 
     user.delete(function(err) { /* callback */ });
 
+### Active Record Relation
 
+Based on your schema definition (by using the `reference` in the index), you can setup relationship for the tables.
 
+For example, let's say that we have the following schema:
 
+    schema.defineTable('User', [
+      {col: 'uuid', type: 'uuid', default: {proc: 'makeUUID'}, unique: true}
+      , {col: 'login', type: 'string', unique: true}
+      , {col: 'email', type: 'email', unique: true}
+    ]);
+
+    schema.defineTable('Password', [
+      {col: 'type', type: 'string', default: 'sha256'}
+      , {col: 'salt', type: 'hexString', unique: true, default: {proc: 'randomBytes'}}
+      , {col: 'hash', type: 'hexString'}
+      , {col: 'userUUID', type: 'uuid', index: true, reference: {table: 'User', columns: ['uuid']}}
+    ]);
+
+Once you have created an `user` object via either `conn.insert`, `conn.select`, or `conn.selectOne`, you can then
+access a password object via
+
+    user.selectOne('Password', {}, function(err, pass) {
+      if (err) {
+
+      } else {
+        // pass is an active record as well.
+      }
+    });
+
+The `object.insert`, `object.select`, and `object.selectOne` has exactly the same interface as the `conn` version, but
+the valid tables are currently limited to those that have direct reference to `object.table`.
 
 
 
