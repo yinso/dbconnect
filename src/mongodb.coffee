@@ -11,7 +11,7 @@ class MongoDBDriver extends DBConnect
     database: 'test'
   @connections: {}
   tableName: (name) ->
-    name.toLowerCase()
+    name.replace /^[A-Z]+/, (str) -> str.toLowerCase()
   id: () ->
     {host, port, database} = @args
     "#{host}:#{port}/#{database}"

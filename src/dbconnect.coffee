@@ -177,7 +177,7 @@ class DBConnect extends EventEmitter
         return cb new Error("dbconnect.selectOne:schema_missing")
       table = @schema.hasTable(tableName)
       if not table
-        return cb new Error("dbconnect:selectOne:unknown_table: #{tableName}")
+        return cb new Error("dbconnect.selectOne:unknown_table: #{tableName}")
       if @prepared.hasOwnProperty("#{tableName}_Select")
         @query "#{tableName}_SelectOne", res, (err, results) =>
           if err
@@ -189,6 +189,8 @@ class DBConnect extends EventEmitter
         @query query, {}, (err, rec) =>
           if err
             cb err
+          else if not rec
+            cb new Error("dbconnect.selectOne:no_record_returned#: #{JSON.stringify(query)}")
           else
             cb null, @schema.makeRecord(@, tableName, rec)
     catch e

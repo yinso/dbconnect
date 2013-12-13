@@ -26,7 +26,7 @@
       <file leaf-file-name="dbconnect.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/dbconnect.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="20" selection-start="1175" selection-end="1181" vertical-scroll-proportion="-7.9411764" vertical-offset="180" max-vertical-offset="3075">
+            <state line="184" column="0" selection-start="6001" selection-end="6001" vertical-scroll-proportion="-17.36" vertical-offset="2326" max-vertical-offset="3105">
               <folding />
             </state>
           </provider>
@@ -53,7 +53,7 @@
       <file leaf-file-name="schema.coffee" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/schema.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="0" selection-start="886" selection-end="886" vertical-scroll-proportion="0.6313498" vertical-offset="15" max-vertical-offset="8475">
+            <state line="351" column="44" selection-start="9770" selection-end="9770" vertical-scroll-proportion="0.30333817" vertical-offset="5056" max-vertical-offset="9090">
               <folding />
             </state>
           </provider>
@@ -62,7 +62,7 @@
       <file leaf-file-name="schema.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/schema.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="0" selection-start="29" selection-end="687" vertical-scroll-proportion="-12.0" vertical-offset="0" max-vertical-offset="555">
+            <state line="31" column="0" selection-start="868" selection-end="868" vertical-scroll-proportion="-18.6" vertical-offset="0" max-vertical-offset="555">
               <folding />
             </state>
           </provider>
@@ -80,7 +80,7 @@
       <file leaf-file-name="mongodb.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/mongodb.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="219" column="0" selection-start="6867" selection-end="6867" vertical-scroll-proportion="-23.96" vertical-offset="2686" max-vertical-offset="3375">
+            <state line="13" column="0" selection-start="319" selection-end="319" vertical-scroll-proportion="99.64" vertical-offset="2686" max-vertical-offset="3375">
               <folding />
             </state>
           </provider>
@@ -126,11 +126,11 @@
         <option value="$PROJECT_DIR$/test/mongodb.coffee" />
         <option value="$PROJECT_DIR$/package.bean" />
         <option value="$PROJECT_DIR$/src/main.coffee" />
-        <option value="$PROJECT_DIR$/src/dbconnect.coffee" />
         <option value="$PROJECT_DIR$/src/postgres.coffee" />
         <option value="$PROJECT_DIR$/example/schema.coffee" />
         <option value="$PROJECT_DIR$/test/postgres.coffee" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/src/dbconnect.coffee" />
         <option value="$PROJECT_DIR$/src/mongodb.coffee" />
         <option value="$PROJECT_DIR$/src/schema.coffee" />
       </list>
@@ -251,7 +251,7 @@
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="options.lastSelected" value="web-ide.project.structure" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../bookish" />
     <property name="FullScreen" value="false" />
     <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
@@ -374,13 +374,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/dbconnect.coffee">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="20" selection-start="1175" selection-end="1181" vertical-scroll-proportion="-7.9411764" vertical-offset="180" max-vertical-offset="3075">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/postgres.coffee">
       <provider selected="true" editor-type-id="text-editor">
         <state line="115" column="0" selection-start="3002" selection-end="3002" vertical-scroll-proportion="-63.0" vertical-offset="150" max-vertical-offset="3315">
@@ -401,13 +394,6 @@
           <folding>
             <element signature="n#!!doc" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/example/schema.coffee">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="0" selection-start="29" selection-end="687" vertical-scroll-proportion="-12.0" vertical-offset="0" max-vertical-offset="555">
-          <folding />
         </state>
       </provider>
     </entry>
@@ -435,16 +421,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/dbconnect.coffee">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="184" column="0" selection-start="6001" selection-end="6001" vertical-scroll-proportion="-17.36" vertical-offset="2326" max-vertical-offset="3105">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/mongodb.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="219" column="0" selection-start="6867" selection-end="6867" vertical-scroll-proportion="-23.96" vertical-offset="2686" max-vertical-offset="3375">
+        <state line="13" column="0" selection-start="319" selection-end="319" vertical-scroll-proportion="99.64" vertical-offset="2686" max-vertical-offset="3375">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/schema.coffee">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="31" column="0" selection-start="868" selection-end="868" vertical-scroll-proportion="-18.6" vertical-offset="0" max-vertical-offset="555">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/schema.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="0" selection-start="886" selection-end="886" vertical-scroll-proportion="0.6313498" vertical-offset="15" max-vertical-offset="8475">
+        <state line="351" column="44" selection-start="9770" selection-end="9770" vertical-scroll-proportion="0.30333817" vertical-offset="5056" max-vertical-offset="9090">
           <folding />
         </state>
       </provider>

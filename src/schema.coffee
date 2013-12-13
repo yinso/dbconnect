@@ -23,12 +23,16 @@ class Column
     if spec instanceof Object
       proc = @table.schema.hasFunction spec.proc
       if not proc
-        throw new Error("unknown_default_function: #{@def.default.proc}")
+        throw new Error("unknown_default_function: #{spec.proc}")
       if spec.args instanceof Array
         args = spec.args
-        () -> proc args...
+        (v) -> proc args...
       else
-        proc
+        (v) ->
+          if arguments.length > 0
+            proc arguments...
+          else
+            proc()
     else
       () => spec
   destroy: () ->
@@ -151,10 +155,18 @@ class Index
       throw new Error("Index.referenceQuery:not_a_foreign_key: #{@name}")
     # first of all - create a mapping between the two sets of names.
     obj = {}
-    mapping = {}
     for col, i in @reference.columns
       if keyvals.hasOwnProperty(col)
         obj[@columns[i]] = keyvals[col]
+    obj
+  reverseReferenceQuery: (keyvals) ->
+    if not @reference
+      throw new Error("Index.referenceQuery:not_a_foreign_key: #{@name}")
+    # first of all - create a mapping between the two sets of names.
+    obj = {}
+    for col, i in @columns
+      if keyvals.hasOwnProperty(col)
+        obj[@reference.columns[i]] = keyvals[col]
     obj
 
 class Table
@@ -287,7 +299,7 @@ class ActiveRecord extends EventEmitter
       @_setOne key, val
     for column, i in @table.columns
       if column.update and not obj.hasOwnProperty(column.name)
-        @_setOne column.name, column.update()
+        @_setOne column.name, column.update(@record[column.name])
   _setOne: (key, val) ->
     col = @table.hasColumn key
     if col and not col.validate(val)
@@ -303,26 +315,39 @@ class ActiveRecord extends EventEmitter
       @record[key]
     else
       undefined
-  select: (tableName, cb) ->
+  getRelationQuery: (tableName, args) ->
     table = @table.schema.hasTable tableName
     if not table
-      return cb new Error("ActiveRecord.select:unknown_table: #{tableName}")
+      throw new Error("ActiveRecord.select:unknown_table: #{tableName}")
     index = table.references @table
     if index # we have a reference.
       query = index.referenceQuery @record
+      _.extend query, args
+    else
+      index = @table.references table
+      if index
+        query = index.reverseReferenceQuery @record
+        _.extend query, args
+      else
+        throw new Error("ActiveRecord.select:tables_not_related: #{@table.name}, #{tableName}")
+  select: (tableName, args, cb) ->
+    if arguments.length == 2
+      cb = args
+      args = {}
+    try
+      query = @getRelationQuery tableName, args
       @db.select tableName, query, cb
-    else
-      cb new Error("ActiveRecord.select:tables_not_related: #{@table.name}, #{tableName}")
-  selectOne: (tableName, cb) ->
-    table = @table.schema.hasTable tableName
-    if not table
-      return cb new Error("ActiveRecord.selectOne:unknown_table: #{tableName}")
-    index = table.references @table
-    if index # we have a reference.
-      query = index.referenceQuery @record
+    catch e
+      cb e
+  selectOne: (tableName, args, cb) ->
+    if arguments.length == 2
+      cb = args
+      args = {}
+    try
+      query = @getRelationQuery tableName, args
       @db.selectOne tableName, query, cb
-    else
-      cb new Error("ActiveRecord.selectOne:tables_not_related: #{@table.name}, #{tableName}")
+    catch e
+      cb e
   insert: (tableName, args, cb) ->
     table = @table.schema.hasTable tableName
     if not table
@@ -508,6 +533,20 @@ class NUMBER
 
 Schema.registerType 'number', NUMBER
 
+class INTEGER
+  @convertable: (val) ->
+    (typeof(val) == 'number' and Math.round(val) == val) or (typeof(val) == 'string' and val.match(/^-?\d*/))
+  @make: (val) ->
+    if @convertable(val)
+      if typeof(val) == 'string'
+        parseInt(val)
+      else
+        val
+    else
+      throw new Error("invalid_integer: #{val}")
+
+Schema.registerType 'integer', INTEGER
+
 class EMAIL
   @convertable: (val) ->
     check(val).isEmail()
@@ -555,5 +594,7 @@ Schema.registerFunction 'randomBytes', (size = 32) ->
 Schema.registerFunction 'makeUUID', uuid.v4
 
 Schema.registerFunction 'now', () -> new Date()
+
+Schema.registerFunction 'increment', (i = 0) -> i + 1
 
 module.exports = Schema
