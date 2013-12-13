@@ -6,12 +6,18 @@ module.exports = (schema) ->
     {col: 'email', type: 'email', unique: true}
   ]
 
-  schema.defineTable 'password', [
-    {col: 'type', type: 'string'}
+  schema.defineTable 'Password', [
+    {col: 'type', type: 'string', default: 'sha256'}
     {col: 'salt', type: 'hexString', unique: true, default: {proc: 'randomBytes'}}
     {col: 'hash', type: 'hexString'}
     {col: 'userUUID', type: 'uuid', index: true, reference: {table: 'User', columns: ['uuid']}}
-  ]
+  ], {
+    verify: (passwd, cb) ->
+      if passwd == 'mock-password'
+        cb null, @
+      else
+        cb new Error("invalid_password")
+  }
 
 #  schema.defineIndex {
 #    name: 'indexUserPassword'

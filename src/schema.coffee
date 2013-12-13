@@ -140,7 +140,7 @@ class Index
     index
 
 class Table
-  constructor: (@schema, @name, @defs) ->
+  constructor: (@schema, @name, @defs, @mixin) ->
     if @schema.hasTable @name
       throw new Error("duplicate_table_in_schema: #{@name}, #{@schema.name}")
     @initColumns()
@@ -348,8 +348,8 @@ class Schema
     if indexes
       for def in indexes
         @defineIndex def
-  defineTable: (name, defs) ->
-    table = new Table @, name, defs
+  defineTable: (name, defs, mixin = {}) ->
+    table = new Table @, name, defs, mixin
     @tables[table.name] = table
   defineIndex: (def) ->
     if not def.table
@@ -403,7 +403,8 @@ class Schema
     table = @hasTable tableName
     if not table
       throw new Error("Schema.makeRecord:invalid_table: #{tableName}")
-    new ActiveRecord table, db, arg
+    rec = new ActiveRecord table, db, arg
+    _.extend rec, table.mixin
   serialize: () ->
     tables = {}
     for key, table of @tables
@@ -461,7 +462,7 @@ Schema.registerType 'email', EMAIL
 
 class HEXSTRING
   @convertable: (val) ->
-    check(val).isHexdecimal(val)
+    check(val).isHexadecimal(val)
   @make: (val) ->
     if @convertable(val)
       val

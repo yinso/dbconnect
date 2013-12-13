@@ -93,13 +93,26 @@ describe 'postgresql test', () ->
 
   it 'can insert via .insert()', (done) ->
     try
-      conn.insert 'User', {login: 'test', email: 'testa.testing111@gmail.com'}, (err, u) ->
-        console.log 'user.insert', err, u
+      conn.beginTrans (err) ->
         if err
           done err
         else
-          user = u
-          done null
+          conn.insert 'User', {login: 'test', email: 'testa.testing111@gmail.com'}, (err, u) ->
+            console.log 'user.insert', err, u
+            if err
+              conn.rollback (e) ->
+                done err
+            else
+              conn.insert 'Password', {salt: '0000000000', hash: '0000000000', userUUID: u.get('uuid')}, (err, p) ->
+                if err
+                  conn.rollback (e) -> done err
+                else
+                  conn.commit (err) ->
+                    if err
+                      conn.rollback (e) -> done err
+                    else
+                      user = u
+                      done null
     catch e
       done e
 
@@ -112,6 +125,21 @@ describe 'postgresql test', () ->
           user = u
           done null
     catch e
+      done e
+
+  it 'can use mixin', (done) ->
+    try
+      conn.selectOne 'Password', {userUUID: user.get('uuid')}, (err, p) ->
+        if err
+          done err
+        else
+          p.verify 'mock-password', (err) ->
+            if err
+              done err
+            else
+              done null
+    catch e
+      done e
 
   it 'can update via .update()', (done) ->
     try
@@ -125,11 +153,19 @@ describe 'postgresql test', () ->
 
   it 'can delete via .delete()', (done) ->
     try
-      user.delete (err) ->
+      conn.beginTrans (err) ->
         if err
           done err
         else
-          done null
+          conn.query 'delete from password_t where userUUID = $uuid', {uuid: user.get('uuid')}, (err) ->
+            if err
+              conn.rollback () -> done err
+            else
+              user.delete (err) ->
+                if err
+                  conn.rollback () -> done err
+                else
+                  conn.commit done
     catch e
       done e
 
