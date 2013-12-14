@@ -187,8 +187,11 @@ class Table
     for col in columns
       if names.hasOwnProperty(col.col)
         throw new Error("duplicate_column_in_table: #{col.col}, #{@table.name}")
+      else if names.hasOwnProperty(col.col.toLowerCase())
+        throw new Error("duplicate_column_case_insensitive_in_table: #{col.col}, #{@table.name}")
       else
         names[col.col] = col
+        names[col.col.toLowerCase()] = col
   extractColumns: (defs) ->
     _.filter defs, (obj) -> obj.col or obj.column
   initColumns: () ->
@@ -281,7 +284,8 @@ class Table
 
 
 class ActiveRecord extends EventEmitter
-  constructor: (@table, @db, @record) ->
+  constructor: (@table, @db, record) ->
+    @record = @db.normalizeRecord @table, record
     @changed = false
     @deleted = false
     @updated = {}
@@ -573,10 +577,13 @@ class DATETIME
   @convertable: (val) ->
     check(val).isDate(val)
   @make: (val) ->
-    if @convertable(val)
-      Date.parse(val)
-    else
-      throw new Error("invalid_datetime: #{val}")
+    res =
+      if @convertable(val)
+        new Date Date.parse(val)
+      else
+        throw new Error("invalid_datetime: #{val}")
+    console.log 'DATETIME.make', val, res
+    res
 
 Schema.registerType 'datetime', DATETIME
 

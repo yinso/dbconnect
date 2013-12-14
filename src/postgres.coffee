@@ -44,6 +44,9 @@ class PostgresDriver extends DBConnect
         @done = done
         cb null, @
   _query: (stmt, args, cb) ->
+    if arguments.length == 2
+      cb = args
+      args = {}
     # we'll need to parse the query to convert $key to $n
     parsed = @parseStmt stmt, args
     console.log 'Postgres._query', parsed.stmt, parsed.args
@@ -143,6 +146,16 @@ class PostgresDriver extends DBConnect
       @ensureColumns table, query
       queryGen = @criteriaQuery query
       {stmt: "update #{@tableName(table.name)} set #{setGen} where #{queryGen}", args: _.extend({}, setExp, query)}
+  normalizeRecord: (table, rec) ->
+    # postgres stores the columns case-insensitively, so we'll need to remap the records.
+    obj = {}
+    for col in table.columns
+      lc = col.name.toLowerCase()
+      if not rec.hasOwnProperty(lc)
+        throw new Error("Postgresql.normalizeRecord:missing_property: #{col.name}")
+      else
+        obj[col.name] = rec[lc]
+    obj
 
 DBConnect.register 'postgres', PostgresDriver
 

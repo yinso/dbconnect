@@ -196,6 +196,7 @@ class DBConnect extends EventEmitter
     catch e
       cb e
   uuid: uuid.v4
+  normalizeRecord: (table, rec) -> rec
 
 module.exports = DBConnect
 
