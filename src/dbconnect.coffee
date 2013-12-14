@@ -127,7 +127,10 @@ class DBConnect extends EventEmitter
               cb null, @schema.makeRecord(@, tableName, results)
     catch e
       cb e
-  delete: (tableName, obj, cb) ->
+  delete: (tableName, args, cb) ->
+    if arguments.length == 2
+      cb = args
+      args = {}
     try
       if not @schema
         return cb new Error("dbconnect.delete:schema_missing")
@@ -141,7 +144,7 @@ class DBConnect extends EventEmitter
           else
             cb null, res # res here or
       else # we'll have to generate an adhoc query?
-        query = @generateDelete table, obj
+        query = @generateDelete table, args
         @query query, {}, (err) =>
           if err
             cb err
@@ -150,6 +153,9 @@ class DBConnect extends EventEmitter
     catch e
       cb e
   select: (tableName, query, cb) ->
+    if arguments.length == 2
+      cb = query
+      query = {}
     try
       if not @schema
         return cb new Error("dbconnect.select:schema_missing")
@@ -172,6 +178,9 @@ class DBConnect extends EventEmitter
     catch e
       cb e
   selectOne: (tableName, query, cb) ->
+    if arguments.length == 2
+      cb = query
+      query = {}
     try
       if not @schema
         return cb new Error("dbconnect.selectOne:schema_missing")
