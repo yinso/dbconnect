@@ -96,8 +96,18 @@ class DBConnect extends EventEmitter
     cb null, @
   rollback: (cb) ->
     cb null, @
+  doneTrans: (cb) ->
+    (err, res) =>
+      if err
+        @rollback () -> cb err
+      else
+        @commit (err) ->
+          if err
+            cb err
+          else
+            cb null, res
   insert: (tableName, obj, cb) ->
-    console.log 'DBConnect.insert', tableName, obj
+    #console.log 'DBConnect.insert', tableName, obj
     try
       if not @schema
         return cb new Error("dbconnect.insert:schema_missing")
@@ -105,26 +115,16 @@ class DBConnect extends EventEmitter
       if not table
         return cb new Error("dbconnect:insert:unknown_table: #{tableName}")
       res = table.make obj
-      if @prepared.hasOwnProperty("#{tableName}_Insert")
-        @query "#{tableName}_Insert", res, (err, results) =>
-          if err
-            cb err
+      query = @generateInsert table, res
+      #console.log 'DBConnect.insert.query', query, res
+      @query query, res, (err, results) =>
+        if err
+          cb err
+        else
+          if results instanceof Array
+            cb null, (@schema.makeRecord(@, tableName, rec) for rec in results)
           else
-            if results instanceof Array
-              cb null, (@schema.makeRecord(@, tableName, rec) for rec in results)
-            else
-              cb null, @schema.makeRecord(@, tableName, results)
-      else # we'll have to generate an adhoc query?
-        query = @generateInsert table, res
-        console.log 'DBConnect.insert.query', query, res
-        @query query, res, (err, results) =>
-          if err
-            cb err
-          else
-            if results instanceof Array
-              cb null, (@schema.makeRecord(@, tableName, rec) for rec in results)
-            else
-              cb null, @schema.makeRecord(@, tableName, results)
+            cb null, @schema.makeRecord(@, tableName, results)
     catch e
       cb e
   delete: (tableName, args, cb) ->
@@ -137,19 +137,12 @@ class DBConnect extends EventEmitter
       table = @schema.hasTable(tableName)
       if not table
         return cb new Error("dbconnect:delete:unknown_table: #{tableName}")
-      if @prepared.hasOwnProperty("#{tableName}_Delete")
-        @query "#{tableName}_Delete", res, (err, results) =>
-          if err
-            cb err
-          else
-            cb null, res # res here or
-      else # we'll have to generate an adhoc query?
-        query = @generateDelete table, args
-        @query query, {}, (err) =>
-          if err
-            cb err
-          else
-            cb null
+      query = @generateDelete table, args
+      @query query, {}, (err) =>
+        if err
+          cb err
+        else
+          cb null
     catch e
       cb e
   select: (tableName, query, cb) ->
@@ -162,50 +155,33 @@ class DBConnect extends EventEmitter
       table = @schema.hasTable(tableName)
       if not table
         return cb new Error("dbconnect:select:unknown_table: #{tableName}")
-      if @prepared.hasOwnProperty("#{tableName}_Select")
-        @query "#{tableName}_Select", res, (err, results) =>
+      query = @generateSelect table, query
+      @query query, {}, (err, results) =>
+        try
           if err
             cb err
           else
-            cb null, results # res here or
-      else # we'll have to generate an adhoc query?
-        query = @generateSelect table, query
-        @query query, {}, (err, results) =>
-          if err
-            cb err
-          else
-            cb null, (@schema.makeRecord(@, tableName, res) for res in results)
+            cb null, @schema.makeRecordSet @, tableName, results
+        catch err
+          cb err
     catch e
       cb e
   selectOne: (tableName, query, cb) ->
-    if arguments.length == 2
-      cb = query
-      query = {}
-    try
-      if not @schema
-        return cb new Error("dbconnect.selectOne:schema_missing")
-      table = @schema.hasTable(tableName)
-      if not table
-        return cb new Error("dbconnect.selectOne:unknown_table: #{tableName}")
-      if @prepared.hasOwnProperty("#{tableName}_Select")
-        @query "#{tableName}_SelectOne", res, (err, results) =>
-          if err
-            cb err
-          else
-            cb null, results # res here or
-      else # we'll have to generate an adhoc query?
-        query = @generateSelectOne table, query
-        @query query, {}, (err, rec) =>
-          if err
-            cb err
-          else if not rec
-            cb new Error("dbconnect.selectOne:no_record_returned#: #{JSON.stringify(query)}")
-          else
-            cb null, @schema.makeRecord(@, tableName, rec)
-    catch e
-      cb e
+    @select tableName, query, (err, recordset) =>
+      if err
+        return cb err
+      else
+        if recordset.length > 0
+          cb null, recordset.first()
+        else
+          cb new Error("dbconnect.selectOne:no_record_returned: #{tableName}, #{JSON.stringify(query)}")
   uuid: uuid.v4
   normalizeRecord: (table, rec) -> rec
+  makeRecord: (tableName, rec) ->
+    @schema.makeRecord @, tableName, rec
+  supports: (key) ->
+    false
+  generateInQuery: () -> throw new Error("DBConnect.generateInQuery:not_supported")
 
 module.exports = DBConnect
 

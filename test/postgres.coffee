@@ -85,6 +85,7 @@ describe 'postgresql test', () ->
         done err
     catch e
       done e
+
   it 'can delete', (done) ->
     try
       conn.query 'delete from user_t', {}, done
@@ -127,8 +128,21 @@ describe 'postgresql test', () ->
     catch e
       done e
 
+  it 'can select via .selectOne() with IN query', (done) ->
+    try
+      conn.selectOne 'User', {email: ['testa.testing111@gmail.com']}, (err, u) ->
+        if err
+          done err
+        else
+          user = u
+          done null
+    catch e
+      done e
+
   it 'can use mixin', (done) ->
     try
+      # conn.select ought to return a recordset that can be further used to select via IN.
+      # this is something that'll
       conn.selectOne 'Password', {userUUID: user.get('uuid')}, (err, p) ->
         if err
           done err

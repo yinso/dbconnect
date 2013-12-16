@@ -245,6 +245,11 @@ class Table
       if index.unique
         return index
     undefined
+  hasPrimaryOrUnique: () ->
+    if @hasPrimary()
+      @primary
+    else
+      @hasUnique()
   references: (table) ->
     for key, index of @indexes
       if index.reference?.table == table.name
@@ -267,28 +272,40 @@ class Table
     else
       obj
   idQuery: (query) ->
-    primary = @hasPrimary()
-    if primary
-      @_idQuery primary, query
+    index = @hasPrimaryOrUnique()
+    if index
+      @_idQuery index, query
     else
-      unique = @hasUnique()
-      if unique
-        @_idQuery unique, query
-      else
-        query
+      query
   _idQuery: (index, query) ->
     obj = {}
     for col in index.columns
       obj[col] = query[col]
     obj
-
+  getRelationQuery: (tableName, args, record) ->
+    table = @schema.hasTable tableName
+    if not table
+      throw new Error("ActiveRecord.select:unknown_table: #{tableName}")
+    index = table.references @
+    if index # we have a reference.
+      query = index.referenceQuery record
+      _.extend query, args
+    else
+      index = @references table
+      if index
+        query = index.reverseReferenceQuery record
+        _.extend query, args
+      else
+        throw new Error("ActiveRecord.select:tables_not_related: #{@name}, #{tableName}")
 
 class ActiveRecord extends EventEmitter
   constructor: (@table, @db, record) ->
+    console.log 'ActiveRecord.ctor', @table.name, record
     @record = @db.normalizeRecord @table, record
     @changed = false
     @deleted = false
     @updated = {}
+    _.extend @, @table.mixin
   set: (key, val) ->
     if @deleted
       throw new Error("ActiveRecord.set:record_already_deleted")
@@ -319,27 +336,12 @@ class ActiveRecord extends EventEmitter
       @record[key]
     else
       undefined
-  getRelationQuery: (tableName, args) ->
-    table = @table.schema.hasTable tableName
-    if not table
-      throw new Error("ActiveRecord.select:unknown_table: #{tableName}")
-    index = table.references @table
-    if index # we have a reference.
-      query = index.referenceQuery @record
-      _.extend query, args
-    else
-      index = @table.references table
-      if index
-        query = index.reverseReferenceQuery @record
-        _.extend query, args
-      else
-        throw new Error("ActiveRecord.select:tables_not_related: #{@table.name}, #{tableName}")
   select: (tableName, args, cb) ->
     if arguments.length == 2
       cb = args
       args = {}
     try
-      query = @getRelationQuery tableName, args
+      query = @table.getRelationQuery tableName, args, @record
       @db.select tableName, query, cb
     catch e
       cb e
@@ -348,7 +350,7 @@ class ActiveRecord extends EventEmitter
       cb = args
       args = {}
     try
-      query = @getRelationQuery tableName, args
+      query = @table.getRelationQuery tableName, args, @record
       @db.selectOne tableName, query, cb
     catch e
       cb e
@@ -401,10 +403,73 @@ class ActiveRecord extends EventEmitter
         @deleted = true
         cb null
 
+# used for holding resultsets
+class ActiveRecordSet
+  constructor: (@table, @db, records) ->
+    @records =
+      for record in records
+        @db.normalizeRecord @table, record
+    @length = @records.length
+  select: (tableName, args, cb) ->
+    if arguments.length == 2
+      cb = args
+      args = {}
+    records = []
+    table = @table.schema.hasTable tableName
+    if not table
+      throw new Error("ActiveRecordSet.select:unknown_table: #{tableName}")
+    helper = (rec, next) =>
+      active = new ActiveRecord @table, @db, rec
+      active.select tableName args, (err, recs) =>
+        if err
+          next err
+        else
+          for rec in recs
+            if rec instanceof ActiveRecord
+              records.push rec.record
+            else
+              records.push rec
+          next null
+    if @db.supports('in')
+      query = @table.getRelationQuery tableName, args, @transpose(@records)
+      @select tableName, query, (err, records) =>
+        if err
+          cb err
+        else
+          cb null, new ActiveRecordSet table, @db, records
+    else
+      async.forEach @records, helper, (err) =>
+        if err
+          cb err
+        else
+          cb null, new ActiveRecordSet table, @db, records
+  selectOne: (tableName, args, cb) ->
+    @select tableName, args, (err, recordSet) =>
+      if err
+        cb err
+      else if recordSet.length > 1
+        cb null, recordSet.first()
+      else
+        cb new Error("ActiveRecordSet.selectOne:record_not_found: #{tableName}, #{JSON.stringify(args)}")
+  transpose: () ->
+    columns = {}
+    helper = (col) ->
+      data = []
+      for rec in @records
+        data.push rec[col.name]
+      data
+    for col in @table.columns
+      columns[col.name] = helper col
+    columns
+  first: () ->
+    console.log 'ActiveRecordSet.first()', @table.name, @records[0]
+    new ActiveRecord @table, @db, @records[0]
+
 class Schema
   @builtInTypes: {}
   @builtInFunctions: {}
   @Record: ActiveRecord
+  @RecordSet: ActiveRecordSet
   @registerType: (name, type) ->
     if @builtInTypes.hasOwnProperty(name)
       throw new Error("built_type_duplicate: #{name}")
@@ -491,8 +556,12 @@ class Schema
     table = @hasTable tableName
     if not table
       throw new Error("Schema.makeRecord:invalid_table: #{tableName}")
-    rec = new ActiveRecord table, db, arg
-    _.extend rec, table.mixin
+    new ActiveRecord table, db, arg
+  makeRecordSet: (db, tableName, arg) ->
+    table = @hasTable tableName
+    if not table
+      throw new Error("Schema.makeRecord:invalid_table: #{tableName}")
+    new ActiveRecordSet table, db, arg
   serialize: () ->
     tables = {}
     for key, table of @tables
@@ -577,13 +646,10 @@ class DATETIME
   @convertable: (val) ->
     check(val).isDate(val)
   @make: (val) ->
-    res =
-      if @convertable(val)
-        new Date Date.parse(val)
-      else
-        throw new Error("invalid_datetime: #{val}")
-    console.log 'DATETIME.make', val, res
-    res
+    if @convertable(val)
+      new Date Date.parse(val)
+    else
+      throw new Error("invalid_datetime: #{val}")
 
 Schema.registerType 'datetime', DATETIME
 

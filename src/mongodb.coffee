@@ -212,6 +212,16 @@ class MongoDBDriver extends DBConnect
     {update: table.name, query: query, $set: rec}
   generateDelete: (table, query) ->
     {delete: table.name, query: query}
+  supports: (key) ->
+    if key == 'in'
+      true
+    else
+      false
+  # ought this be something special? not sure...
+  # but if we are going to support in query, shouldn't it be *normally* available?
+  # {key: [val...]} => this automatically becomes an in-query?
+
+
 
 DBConnect.register 'mongo', MongoDBDriver
 

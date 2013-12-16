@@ -51,9 +51,9 @@ class PostgresDriver extends DBConnect
     parsed = @parseStmt stmt, args
     console.log 'Postgres._query', parsed.stmt, parsed.args
     @inner.query parsed.stmt, parsed.args, (err, res) =>
-      console.log 'inner.query', parsed.stmt, parsed.args, err, res
+      #console.log 'inner.query', parsed.stmt, parsed.args, err, res
       if err
-        console.log 'inner.query.hasError', err
+        #console.log 'inner.query.hasError', err
         cb err
       else if stmt.selectOne
         cb null, res.rows[0]
@@ -111,10 +111,22 @@ class PostgresDriver extends DBConnect
     idQuery = table.idQuery args
     select = @generateSelectOne table, idQuery
     {stmt: "insert into #{@tableName(table.name)} (#{columnText}) select #{phText}", args: args, next: select}
+  escapeVal: (val) ->
+    strHelper = (val) ->
+      "'" + val.replace(/\'/g, "''") + "'"
+    if typeof(val) == 'number'
+      "#{val}"
+    else if typeof(val) == 'string'
+      strHelper val
+    else
+      strHelper val.toString()
   criteriaQuery: (query, sep = ' and ') ->
     criteria = []
     for key, val of query
-      criteria.push "#{key} = $#{key}"
+      if val instanceof Array
+        criteria.push "#{key} in (#{(@escapeVal(v) for v in val).join(', ')})"
+      else
+        criteria.push "#{key} = $#{key}"
     criteria.join(sep)
   generateDelete: (table, query) ->
     if Object.keys(query).length == 0
@@ -147,15 +159,30 @@ class PostgresDriver extends DBConnect
       queryGen = @criteriaQuery query
       {stmt: "update #{@tableName(table.name)} set #{setGen} where #{queryGen}", args: _.extend({}, setExp, query)}
   normalizeRecord: (table, rec) ->
+    console.log 'PostgresDriver.normalizeRecord', table.name, rec
     # postgres stores the columns case-insensitively, so we'll need to remap the records.
     obj = {}
     for col in table.columns
       lc = col.name.toLowerCase()
-      if not rec.hasOwnProperty(lc)
-        throw new Error("Postgresql.normalizeRecord:missing_property: #{col.name}")
-      else
+      console.log 'PostgresDriver.normalize', col.name, lc, rec[lc]
+      if rec.hasOwnProperty(col.name)
+        obj[col.name] = rec[col.name]
+      else if rec.hasOwnProperty(lc)
         obj[col.name] = rec[lc]
+      else
+        throw new Error("PostgresDriver.normalizeRecord:unknown_column: #{col.name}")
     obj
+  prepareSpecial: (key, val) ->
+    if typeof(val) == 'string'
+      @prepare key, (args, cb) ->
+        @query val, args, cb
+    else
+      throw new Error("PostgresDriver.prepareSpecial:unsupported_query_type: #{val}")
+  supports: (key) ->
+    if key == 'in'
+      true
+    else
+      false
 
 DBConnect.register 'postgres', PostgresDriver
 
