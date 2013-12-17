@@ -50,7 +50,7 @@ class PostgresDriver extends DBConnect
     # we'll need to parse the query to convert $key to $n
     parsed = @parseStmt stmt, args
     @inner.query parsed.stmt, parsed.args, (err, res) =>
-      console.log 'Postgres._query', parsed.stmt, parsed.args, res.rows
+      console.log 'Postgres._query', parsed.stmt, parsed.args, err, res
       if err
         #console.log 'inner.query.hasError', err
         cb err

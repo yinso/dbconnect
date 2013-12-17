@@ -472,6 +472,34 @@ class ActiveRecordSet
   first: () ->
     console.log 'ActiveRecordSet.first()', @table.name, @records[0]
     new ActiveRecord @table, @db, @records[0]
+  filter: (args) ->
+    kvOne = (rec, key, val) ->
+      if rec.hasOwnProperty(key)
+        return rec[key] == val
+      false
+    kvHelper = (rec, key, val) ->
+      if val instanceof Array
+        for v in val
+          res = kvOne(rec, key, v)
+          if res
+            return true
+      else
+        kvOne(rec, key, val)
+    helper = (rec) ->
+      result = true
+      for key, val of args
+        res = kvHelper rec, key, val
+        if not res
+          return false
+      return result
+    filtered = _.filter @records, helper
+    new ActiveRecordSet @table, @db, filtered
+  append: (recordset) ->
+    if recordset.table != @table
+      throw new Error("ActiveRecordSet.append:not_the_same_table: #{recordset.table.name} != #{@table.name}")
+    # uncertain if we need validation for unique concating...
+    @records = @records.concat(recordset.records)
+
 
 class Schema
   @builtInTypes: {}
