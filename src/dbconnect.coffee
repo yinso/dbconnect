@@ -107,22 +107,29 @@ class DBConnect extends EventEmitter
           else
             cb null, res
   insert: (tableName, obj, cb) ->
-    #console.log 'DBConnect.insert', tableName, obj
     try
       if not @schema
-        return cb new Error("dbconnect.insert:schema_missing")
+        throw new Error("dbconnect.insert:schema_missing")
       table = @schema.hasTable(tableName)
       if not table
-        return cb new Error("dbconnect:insert:unknown_table: #{tableName}")
-      res = table.make obj
+        throw new Error("dbconnect:insert:unknown_table: #{tableName}")
+      res =
+        if obj instanceof Array
+          if not @supports('insertMulti')
+            throw new Error("#{@constructor.name}.insert:multiple_records_not_supported")
+          else
+            for rec in obj
+              table.make(rec)
+        else
+          table.make obj
       query = @generateInsert table, res
-      #console.log 'DBConnect.insert.query', query, res
       @query query, res, (err, results) =>
         if err
           cb err
         else
+          console.log "#{@constructor.name}.insert:result", results instanceof Array
           if results instanceof Array
-            cb null, (@schema.makeRecord(@, tableName, rec) for rec in results)
+            cb null, @schema.makeRecordSet(@, tableName, results)
           else
             cb null, @schema.makeRecord(@, tableName, results)
     catch e
@@ -161,6 +168,7 @@ class DBConnect extends EventEmitter
           if err
             cb err
           else
+            console.log "#{@constructor.name}.select", tableName
             cb null, @schema.makeRecordSet @, tableName, results
         catch err
           cb err

@@ -117,6 +117,20 @@ describe 'postgresql test', () ->
     catch e
       done e
 
+  it 'can insert multiple via .insert()', (done) ->
+    myDone = conn.doneTrans done
+    try
+      conn.beginTrans (err) ->
+        if err
+          return done err
+        conn.insert 'User', [{login: 'test1', email: 'test1@gmail.com'}, {login: 'test2', email: 'test2@gmail.com'}], (err, users) ->
+          if err
+            myDone err
+          else
+            users.delete myDone
+    catch e
+      done e
+
   it 'can select via .selectOne()', (done) ->
     try
       conn.selectOne 'User', {email: 'testa.testing111@gmail.com'}, (err, u) ->

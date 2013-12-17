@@ -215,6 +215,10 @@ class MongoDBDriver extends DBConnect
   supports: (key) ->
     if key == 'in'
       true
+    else if key == 'insertMulti'
+      true
+    else if key == 'deleteMulti'
+      false
     else
       false
   # ought this be something special? not sure...

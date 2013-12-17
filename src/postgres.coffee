@@ -49,9 +49,8 @@ class PostgresDriver extends DBConnect
       args = {}
     # we'll need to parse the query to convert $key to $n
     parsed = @parseStmt stmt, args
-    console.log 'Postgres._query', parsed.stmt, parsed.args
     @inner.query parsed.stmt, parsed.args, (err, res) =>
-      #console.log 'inner.query', parsed.stmt, parsed.args, err, res
+      console.log 'Postgres._query', parsed.stmt, parsed.args, res.rows
       if err
         #console.log 'inner.query.hasError', err
         cb err
@@ -95,22 +94,41 @@ class PostgresDriver extends DBConnect
     for key, val of kv
       if not table.hasColumn key
         throw new Error("Postgresql.insert.unknown_column: #{key}")
-  generateInsert: (table, args) ->
-    if args instanceof Array
-      throw new Error("Postgresql.insert:multi_insert_not_yet_supported: #{args}")
-    else
-      args = table.make args
-      @ensureColumns table, args
+  valuesStmt: (args, i = 0) ->
     keys = []
+    vals = {}
     for key, val of args
-      keys.push key
-    columnText = keys.join(', ')
-    phText = ("$#{key}" for key in keys).join(', ')
-    # we'll also need a select statement for this guy... for this we should figure out the appropriate
-    # unique
-    idQuery = table.idQuery args
-    select = @generateSelectOne table, idQuery
-    {stmt: "insert into #{@tableName(table.name)} (#{columnText}) select #{phText}", args: args, next: select}
+      newKey = "#{key}#{i}"
+      keys.push "$" + newKey
+      vals[newKey] = val
+    stmt = "(" + keys.join(', ') + ")"
+    {stmt: stmt, values: vals}
+  generateInsert: (table, args) ->
+    stmts =
+      if args instanceof Array
+        stmts =
+          for arg, i in args
+            @valuesStmt(arg, i)
+      else
+        [ @valuesStmt args, 0 ]
+    columnText =
+      '(' + (col.name for col in table.columns).join(', ') + ')'
+    phText =
+      (stmt.stmt for stmt in stmts).join(', ')
+    values =
+      _.extend.apply {}, [{}].concat(stmt.values for stmt in stmts)
+    # it is time to transpose
+    idQuery =
+       if args instanceof Array
+         table.idQuery table.transpose(args)
+       else
+         table.idQuery args
+    select =
+      if args instanceof Array
+        @generateSelect table, idQuery
+      else
+        @generateSelectOne table, idQuery
+    {stmt: "insert into #{@tableName(table.name)} #{columnText} values #{phText}", args: values, next: select}
   escapeVal: (val) ->
     strHelper = (val) ->
       "'" + val.replace(/\'/g, "''") + "'"
@@ -159,12 +177,12 @@ class PostgresDriver extends DBConnect
       queryGen = @criteriaQuery query
       {stmt: "update #{@tableName(table.name)} set #{setGen} where #{queryGen}", args: _.extend({}, setExp, query)}
   normalizeRecord: (table, rec) ->
-    console.log 'PostgresDriver.normalizeRecord', table.name, rec
+    #console.log 'PostgresDriver.normalizeRecord', table.name, rec
     # postgres stores the columns case-insensitively, so we'll need to remap the records.
     obj = {}
     for col in table.columns
       lc = col.name.toLowerCase()
-      console.log 'PostgresDriver.normalize', col.name, lc, rec[lc]
+      #console.log 'PostgresDriver.normalize', col.name, lc, rec[lc]
       if rec.hasOwnProperty(col.name)
         obj[col.name] = rec[col.name]
       else if rec.hasOwnProperty(lc)
@@ -180,6 +198,8 @@ class PostgresDriver extends DBConnect
       throw new Error("PostgresDriver.prepareSpecial:unsupported_query_type: #{val}")
   supports: (key) ->
     if key == 'in'
+      true
+    else if key == 'insertMulti'
       true
     else
       false

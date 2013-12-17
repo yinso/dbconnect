@@ -297,6 +297,16 @@ class Table
         _.extend query, args
       else
         throw new Error("ActiveRecord.select:tables_not_related: #{@name}, #{tableName}")
+  transpose: (records) ->
+    columns = {}
+    helper = (col) ->
+      data = []
+      for rec in records
+        data.push rec[col.name]
+      data
+    for col in @columns
+      columns[col.name] = helper col
+    columns
 
 class ActiveRecord extends EventEmitter
   constructor: (@table, @db, record) ->
@@ -431,7 +441,7 @@ class ActiveRecordSet
               records.push rec
           next null
     if @db.supports('in')
-      query = @table.getRelationQuery tableName, args, @transpose(@records)
+      query = @table.getRelationQuery tableName, args, @transpose()
       @select tableName, query, (err, records) =>
         if err
           cb err
@@ -451,16 +461,14 @@ class ActiveRecordSet
         cb null, recordSet.first()
       else
         cb new Error("ActiveRecordSet.selectOne:record_not_found: #{tableName}, #{JSON.stringify(args)}")
+  delete: (cb) ->
+    args = @table.idQuery @transpose()
+    console.log 'ActiveRecordSet.delete', @tableName, args
+    query = @db.generateDelete @table, args
+    console.log 'ActiveRecordSet.delete', query
+    @db.query query, cb
   transpose: () ->
-    columns = {}
-    helper = (col) ->
-      data = []
-      for rec in @records
-        data.push rec[col.name]
-      data
-    for col in @table.columns
-      columns[col.name] = helper col
-    columns
+    @table.transpose @records
   first: () ->
     console.log 'ActiveRecordSet.first()', @table.name, @records[0]
     new ActiveRecord @table, @db, @records[0]
