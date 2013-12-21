@@ -1,0 +1,53 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'install', 'contender' ]
+2 info using npm@1.1.68
+3 info using node@v0.8.4
+4 verbose node symlink /usr/local/bin/node
+5 verbose read json /Users/yc/code/dbconnect/package.json
+6 verbose read json /Users/yc/code/dbconnect/node_modules/async/package.json
+7 verbose read json /Users/yc/code/dbconnect/node_modules/coffee-bean/package.json
+8 verbose read json /Users/yc/code/dbconnect/node_modules/coffee-script/package.json
+9 verbose read json /Users/yc/code/dbconnect/node_modules/mongodb/package.json
+10 verbose read json /Users/yc/code/dbconnect/node_modules/node-uuid/package.json
+11 verbose read json /Users/yc/code/dbconnect/node_modules/pg/package.json
+12 verbose read json /Users/yc/code/dbconnect/node_modules/testlet/package.json
+13 verbose read json /Users/yc/code/dbconnect/node_modules/underscore/package.json
+14 verbose read json /Users/yc/code/dbconnect/node_modules/validator/package.json
+15 verbose from cache /Users/yc/code/dbconnect/package.json
+16 verbose readDependencies using package.json deps
+17 verbose cache add [ 'contender', null ]
+18 silly cache add name=undefined spec="contender" args=["contender",null]
+19 verbose parsed url { pathname: 'contender', path: 'contender', href: 'contender' }
+20 silly lockFile 8e07c877-contender contender
+21 verbose lock contender /Users/yc/.npm/8e07c877-contender.lock
+22 silly lockFile 8e07c877-contender contender
+23 verbose addNamed [ 'contender', '' ]
+24 verbose addNamed [ null, '' ]
+25 silly lockFile f744e29a-contender contender@
+26 verbose lock contender@ /Users/yc/.npm/f744e29a-contender.lock
+27 silly addNameRange { name: 'contender', range: '', hasData: false }
+28 verbose url raw contender
+29 verbose url resolving [ 'https://registry.npmjs.org/', './contender' ]
+30 verbose url resolved https://registry.npmjs.org/contender
+31 info trying registry request attempt 1 at 17:35:57
+32 http GET https://registry.npmjs.org/contender
+33 http 404 https://registry.npmjs.org/contender
+34 silly registry.get cb [ 404,
+34 silly registry.get   { server: 'CouchDB/1.5.0 (Erlang OTP/R15B03)',
+34 silly registry.get     date: 'Thu, 19 Dec 2013 01:35:58 GMT',
+34 silly registry.get     'content-type': 'application/json',
+34 silly registry.get     'content-length': '52',
+34 silly registry.get     'cache-control': 'must-revalidate' } ]
+35 silly lockFile f744e29a-contender contender@
+36 error 404 'contender' is not in the npm registry.
+36 error 404 You should bug the author to publish it
+36 error 404
+36 error 404 Note that you can also install from a
+36 error 404 tarball, folder, or http url, or git url.
+37 error System Darwin 12.0.0
+38 error command "node" "/usr/local/bin/npm" "install" "contender"
+39 error cwd /Users/yc/code/dbconnect
+40 error node -v v0.8.4
+41 error npm -v 1.1.68
+42 error code E404
+43 verbose exit [ 1, true ]

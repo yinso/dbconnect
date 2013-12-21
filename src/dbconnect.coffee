@@ -67,6 +67,7 @@ class DBConnect extends EventEmitter
     if not (schema instanceof Schema)
       throw new Error("attachSchema:not_a_schema #{schema}")
     @schema = schema
+    schema.conn = @ # is this a good idea? I think so.
   connect: (cb) ->
   query: (stmt, args, cb) ->
     if @prepared.hasOwnProperty(stmt)
@@ -187,6 +188,8 @@ class DBConnect extends EventEmitter
   normalizeRecord: (table, rec) -> rec
   makeRecord: (tableName, rec) ->
     @schema.makeRecord @, tableName, rec
+  makeRecordSet: (tableName, recs) ->
+    @schema.makeRecordSet @, tableName, recs
   supports: (key) ->
     false
   generateInQuery: () -> throw new Error("DBConnect.generateInQuery:not_supported")

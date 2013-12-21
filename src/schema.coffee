@@ -53,7 +53,7 @@ class Column
       @type.make val
     else if @optional
       if @default
-        @default()
+        @default.apply @table.schema.conn, []
       else
         null
     else
@@ -170,7 +170,7 @@ class Index
     obj
 
 class Table
-  constructor: (@schema, @name, @defs, @mixin) ->
+  constructor: (@schema, @name, @defs, @mixin, @loaded = false) ->
     if @schema.hasTable @name
       throw new Error("duplicate_table_in_schema: #{@name}, #{@schema.name}")
     @initColumns()
@@ -494,7 +494,9 @@ class ActiveRecordSet
       return result
     filtered = _.filter @records, helper
     new ActiveRecordSet @table, @db, filtered
-  append: (recordset) ->
+  append: (recordset) -> # do I want to attach it to the table itself?
+    # that seems to be the way to make it completely transparent...
+    # OK - I think I understand how it can be done now.
     if recordset.table != @table
       throw new Error("ActiveRecordSet.append:not_the_same_table: #{recordset.table.name} != #{@table.name}")
     # uncertain if we need validation for unique concating...
@@ -529,6 +531,7 @@ class Schema
     for key, table of @tables
       table.destroy()
     delete @tables
+    delete @conn
   initialize: (schema) ->
     {@name, tables, indexes} = schema
     if tables
