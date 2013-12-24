@@ -128,11 +128,11 @@ class DBConnect extends EventEmitter
         if err
           cb err
         else
-          console.log "#{@constructor.name}.insert:result", results instanceof Array
+          #console.log "#{@constructor.name}.insert:result", results instanceof Array
           if results instanceof Array
-            cb null, @schema.makeRecordSet(@, tableName, results)
+            cb null, @makeRecordSet(tableName, results)
           else
-            cb null, @schema.makeRecord(@, tableName, results)
+            cb null, @makeRecord(tableName, results)
     catch e
       cb e
   delete: (tableName, args, cb) ->
@@ -169,8 +169,8 @@ class DBConnect extends EventEmitter
           if err
             cb err
           else
-            console.log "#{@constructor.name}.select", tableName
-            cb null, @schema.makeRecordSet @, tableName, results
+            #console.log "#{@constructor.name}.select", tableName
+            cb null, @makeRecordSet tableName, results
         catch err
           cb err
     catch e
@@ -193,6 +193,7 @@ class DBConnect extends EventEmitter
   supports: (key) ->
     false
   generateInQuery: () -> throw new Error("DBConnect.generateInQuery:not_supported")
+  generateSchema: (schema = @schema) ->
 
 module.exports = DBConnect
 

@@ -221,9 +221,6 @@ class MongoDBDriver extends DBConnect
       false
     else
       false
-  # ought this be something special? not sure...
-  # but if we are going to support in query, shouldn't it be *normally* available?
-  # {key: [val...]} => this automatically becomes an in-query?
 
 
 

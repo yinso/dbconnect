@@ -17,6 +17,7 @@ userArg = {login: 'test', email: 'testa.testing111@gmail.com', uuid: uuid.v4() }
 user = null
 
 describe 'postgresql test', () ->
+
   it 'can connect', (done) ->
     try
       conn = DBConnect.make 'test2'

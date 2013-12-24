@@ -11,16 +11,19 @@ class Column
     @name = col
     schemaType = @table.schema.hasType type
     if not schemaType
-      throw new Error("unknown_type: #{type}")
+      throw new Error("unknown_type: #{JSON.stringify(type)}")
     @type = schemaType
     @optional = optional or false
     if @def.default
       @default = @setupDefault @def.default
-      @optional = true
     if @def.update
       @update = @setupDefault @def.update
   setupDefault: (spec) ->
+    # we'll have to setup something different for this...
+    # 1 - we'll have to take in the whole spec.
+    # 2 - we'll also have to reference the original function reference (so we can retrieve it from the again.
     if spec instanceof Object
+      # when we set this up -> what
       proc = @table.schema.hasFunction spec.proc
       if not proc
         throw new Error("unknown_default_function: #{spec.proc}")
@@ -307,10 +310,18 @@ class Table
     for col in @columns
       columns[col.name] = helper col
     columns
+  getColumnIndex: (column) ->
+    helper = (columns) ->
+      columns[0] == (if column instanceof Column then column.name else column)
+    for name, index of @indexes
+      if index.columns.length == 1 and helper index.columns
+        return index
+    undefined
+
 
 class ActiveRecord extends EventEmitter
   constructor: (@table, @db, record) ->
-    console.log 'ActiveRecord.ctor', @table.name, record
+    #console.log 'ActiveRecord.ctor', @table.name, record
     @record = @db.normalizeRecord @table, record
     @changed = false
     @deleted = false
@@ -463,14 +474,14 @@ class ActiveRecordSet
         cb new Error("ActiveRecordSet.selectOne:record_not_found: #{tableName}, #{JSON.stringify(args)}")
   delete: (cb) ->
     args = @table.idQuery @transpose()
-    console.log 'ActiveRecordSet.delete', @tableName, args
+    #console.log 'ActiveRecordSet.delete', @tableName, args
     query = @db.generateDelete @table, args
-    console.log 'ActiveRecordSet.delete', query
+    #console.log 'ActiveRecordSet.delete', query
     @db.query query, cb
   transpose: () ->
     @table.transpose @records
   first: () ->
-    console.log 'ActiveRecordSet.first()', @table.name, @records[0]
+    #console.log 'ActiveRecordSet.first()', @table.name, @records[0]
     new ActiveRecord @table, @db, @records[0]
   filter: (args) ->
     kvOne = (rec, key, val) ->
@@ -508,6 +519,7 @@ class Schema
   @builtInFunctions: {}
   @Record: ActiveRecord
   @RecordSet: ActiveRecordSet
+  @Table: Table
   @registerType: (name, type) ->
     if @builtInTypes.hasOwnProperty(name)
       throw new Error("built_type_duplicate: #{name}")
@@ -574,12 +586,21 @@ class Schema
     @defineTable name, type.spec
     @registerType name, type
   hasType: (name) ->
-    if @types.hasOwnProperty(name)
-      @types[name]
-    else if @constructor.builtInTypes.hasOwnProperty(name)
-      @constructor.builtInTypes[name]
-    else
-      undefined
+    helper = (name) =>
+      if @types.hasOwnProperty(name)
+        @types[name]
+      else if @constructor.builtInTypes.hasOwnProperty(name)
+        @constructor.builtInTypes[name]
+      else
+        undefined
+    if typeof(name) == 'string'
+      helper(name)
+    else # it's an object.
+      for key, val of name
+        type = helper(key)
+        if type?.takeArgs
+          return new type(val)
+      return undefined
   registerIndex: (index) ->
     if @indexes.hasOwnProperty index.name
       throw new Error("index_name_duplication: #{index.name}")
@@ -608,7 +629,11 @@ class Schema
     indexes = []
     for key, index of @indexes
       indexes.push index.serialize()
-    {name: name, tables: tables, indexes: indexes}
+    {name: @name, tables: tables, indexes: indexes}
+  generate: (conn) ->
+    result = []
+    for key, table of @tables
+      result.push table.generate(conn)
 
 class STRING
   @make: (val) ->
@@ -620,6 +645,23 @@ class STRING
       "#{val}"
   @convertable: (val) ->
     typeof(val) == 'string'
+  @postgres: 'text' # might be a function or a literal.
+  @takeArgs: true
+  constructor: ({max}) ->
+    if typeof(max) == 'number'
+      @max = max
+    else
+      throw new Error("string_type:unknown_argument_type: #{max}")
+  convertable: (val) ->
+    @constructor.convertable(val) and val.length <= @max
+  make: (val) ->
+    str = @constructor.make val
+    if val.length <= @max
+      val
+    else
+      throw new Error("string_type:val_exceed_size: #{val}, #{@size}")
+  postgres: () ->
+    "varchar(#{@max})"
 
 Schema.registerType 'string', STRING
 
@@ -631,6 +673,7 @@ class UUID
       uuid.v4()
   @convertable: (val) ->
     val.match /^[0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12}$/
+  @postgres: 'uuid'
 
 Schema.registerType 'uuid', UUID
 
@@ -642,6 +685,7 @@ class NUMBER
       val
     else
       parseInt(val)
+  @postgres: 'double precision'
 
 Schema.registerType 'number', NUMBER
 
@@ -656,6 +700,7 @@ class INTEGER
         val
     else
       throw new Error("invalid_integer: #{val}")
+  @postgres: 'bigint'
 
 Schema.registerType 'integer', INTEGER
 
@@ -667,6 +712,7 @@ class EMAIL
       val
     else
       throw new Error("invalid_email: #{val}")
+  @postgres: 'varchar(255)'
 
 Schema.registerType 'email', EMAIL
 
@@ -678,6 +724,24 @@ class HEXSTRING
       val
     else
       throw new Error("invalid_hexstring: #{val}")
+  @postgres: 'text'
+  @takeArgs: true
+  constructor: ({max}) ->
+    if typeof(max) == 'number'
+      @max = max
+    else
+      throw new Error("hexstring:unknown_argument_type: #{max}")
+  convertable: (val) ->
+    @constructor.convertable(val) and val.length <= @max
+  make: (val) ->
+    str = @constructor.make val
+    if val.length <= @max
+      val
+    else
+      throw new Error("hexstring:val_exceed_size: #{val}, #{@size}")
+  postgres: () ->
+    "varchar(#{@max})"
+
 
 Schema.registerType 'hexString', HEXSTRING
 
@@ -689,6 +753,7 @@ class DATETIME
       new Date Date.parse(val)
     else
       throw new Error("invalid_datetime: #{val}")
+  @postgres: 'timestamp with time zone'
 
 Schema.registerType 'datetime', DATETIME
 
@@ -700,8 +765,8 @@ for i in [0...256] by 1
 toHex = (bytes) ->
   for byte in bytes
     b2h[byte]
-Schema.registerFunction 'randomBytes', (size = 32) ->
-  toHex(crypto.randomBytes(size)).join('')
+Schema.registerFunction 'randomBytes',(size = 32) ->
+    toHex(crypto.randomBytes(size)).join('')
 
 Schema.registerFunction 'makeUUID', uuid.v4
 
