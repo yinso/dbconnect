@@ -244,7 +244,7 @@ class PostgresDriver extends DBConnect
       result.join('')
 
     result = []
-    for name, index of table.indexes
+    for index in table.indexes
       if index.columns.length == 1
         continue
       else
@@ -270,7 +270,8 @@ class PostgresDriver extends DBConnect
       else if index.primary
         result.push 'primary'
       # this will require figuring out whether or not the table has already been created.
-      # we'll also need the ability to alter it on demand.  
+      # we'll also need the ability to alter it on demand.
+      # if we want to
       if index.reference
         result.push "references #{@tableName(index.reference.table)} (#{(index.reference.columns).join(', ')})"
     result.join ' '
@@ -297,7 +298,7 @@ class PostgresDriver extends DBConnect
       "default #{@escapeVal(def)}"
   generateSchema: (schema = @schema) ->
     scripts = []
-    for key, table of schema.tables
+    for table in schema.tables
       # primary and unique keys can be created during the generation of the table.
       scripts.push @generateCreateTable table
     scripts.join('\n')

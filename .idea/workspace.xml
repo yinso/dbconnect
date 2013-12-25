@@ -53,7 +53,7 @@
       <file leaf-file-name="postgres.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/postgres.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="244" column="0" selection-start="5953" selection-end="6067" vertical-scroll-proportion="-23.96" vertical-offset="3061" max-vertical-offset="3750">
+            <state line="244" column="0" selection-start="6067" selection-end="6067" vertical-scroll-proportion="-23.96" vertical-offset="3061" max-vertical-offset="3750">
               <folding />
             </state>
           </provider>
@@ -80,7 +80,7 @@
       <file leaf-file-name="postgres.coffee" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/postgres.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="272" column="60" selection-start="9202" selection-end="9202" vertical-scroll-proportion="0.8476052" vertical-offset="3496" max-vertical-offset="4800">
+            <state line="253" column="0" selection-start="8532" selection-end="8532" vertical-scroll-proportion="0.35849056" vertical-offset="3548" max-vertical-offset="4815">
               <folding />
             </state>
           </provider>
@@ -89,7 +89,7 @@
       <file leaf-file-name="schema.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/schema.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="313" column="14" selection-start="8978" selection-end="8978" vertical-scroll-proportion="-9.88" vertical-offset="4448" max-vertical-offset="11745">
+            <state line="433" column="18" selection-start="12567" selection-end="12567" vertical-scroll-proportion="-9.88" vertical-offset="6248" max-vertical-offset="12210">
               <folding />
             </state>
           </provider>
@@ -404,13 +404,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/postgres.coffee">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="244" column="0" selection-start="5953" selection-end="6067" vertical-scroll-proportion="-23.96" vertical-offset="3061" max-vertical-offset="3750">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/example/schema.coffee">
       <provider selected="true" editor-type-id="text-editor">
         <state line="19" column="0" selection-start="1037" selection-end="1037" vertical-scroll-proportion="-11.4" vertical-offset="0" max-vertical-offset="645">
@@ -427,14 +420,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/schema.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="313" column="14" selection-start="8978" selection-end="8978" vertical-scroll-proportion="-9.88" vertical-offset="4448" max-vertical-offset="11745">
+        <state line="433" column="18" selection-start="12567" selection-end="12567" vertical-scroll-proportion="-9.88" vertical-offset="6248" max-vertical-offset="12210">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/postgres.coffee">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="244" column="0" selection-start="6067" selection-end="6067" vertical-scroll-proportion="-23.96" vertical-offset="3061" max-vertical-offset="3750">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/postgres.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="272" column="60" selection-start="9202" selection-end="9202" vertical-scroll-proportion="0.8476052" vertical-offset="3496" max-vertical-offset="4800">
+        <state line="253" column="0" selection-start="8532" selection-end="8532" vertical-scroll-proportion="0.35849056" vertical-offset="3548" max-vertical-offset="4815">
           <folding />
         </state>
       </provider>

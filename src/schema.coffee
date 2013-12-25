@@ -54,13 +54,44 @@ class Column
   make: (val) ->
     if val != undefined and val != null
       @type.make val
+    else if @default
+      @default.apply @table.schema.conn, []
     else if @optional
-      if @default
-        @default.apply @table.schema.conn, []
-      else
-        null
+      null
     else
       throw new Error("value_required: #{@table.name}.#{@name}")
+
+class OrderedMap extends Array
+  constructor: (ensure, items = []) ->
+    Object.defineProperty @, 'ensure', {value: ensure, enumerable: false}
+    for item in items
+      @ensure item
+    for item in items
+      @push item
+      @[item.name] = item
+  destroy: () ->
+    for key, val of @
+      if val instanceof Index
+        val.destroy()
+  splice: (index, removed, inserted...) ->
+    for item in inserted
+      @ensure item
+    removedCols = super index, removed, inserted...
+    for col in removedCols
+      delete @[col.name]
+    for col in inserted
+      @[col.name] = col
+    removedCols
+  push: (col...) ->
+    @splice @length, 0, col...
+  pop: (col...) ->
+    res = @splice @length - 1, 1
+    res[0]
+  unshift: (col...) ->
+    @splice 0, 0, col...
+  shift: () ->
+    res = @splice 0, 1
+    res[0]
 
 class Columns extends Array
   constructor: (columns) ->
@@ -200,7 +231,7 @@ class Table
   initColumns: () ->
     columns = @extractColumns @defs
     @ensureColumnNames columns
-    @columns = new Columns(@makeColumn(col) for col in columns)
+    @columns = new OrderedMap(((col) -> col instanceof Column), @makeColumn(col) for col in columns)
   makeColumn: (col) ->
     new Column @, col
   extractIndexes: (defs) ->
@@ -208,12 +239,10 @@ class Table
       def.index or def.primary or def.unique or def.reference
     _.filter defs, helper
   initIndexes: () ->
-    @indexes = {}
-    indexes = @extractIndexes @defs
-    for def in indexes
+    helper = (def) =>
       indexDef = @normalizeIndexDef def
-      index = new Index @, indexDef
-      @indexes[index.name] = index
+      new Index @, indexDef
+    @indexes = new OrderedMap ((idx) -> idx instanceof Index), (helper(def) for def in @extractIndexes @defs)
   normalizeIndexDef: (def) ->
     if def.col
       col =
@@ -313,7 +342,7 @@ class Table
   getColumnIndex: (column) ->
     helper = (columns) ->
       columns[0] == (if column instanceof Column then column.name else column)
-    for name, index of @indexes
+    for index in @indexes
       if index.columns.length == 1 and helper index.columns
         return index
     undefined
@@ -513,6 +542,8 @@ class ActiveRecordSet
     # uncertain if we need validation for unique concating...
     @records = @records.concat(recordset.records)
 
+class Tables extends Array
+
 
 class Schema
   @builtInTypes: {}
@@ -530,8 +561,8 @@ class Schema
     @builtInFunctions[name] = proc
   constructor: (schema) ->
     @types = {}
-    @tables = {}
-    @indexes = {}
+    @tables = new OrderedMap ((t) -> t instanceof Table)
+    @indexes = new OrderedMap ((idx) -> idx instanceof Index)
     @references = {} # how are things related to another table...
     @functions = {}
     if schema
@@ -554,7 +585,7 @@ class Schema
         @defineIndex def
   defineTable: (name, defs, mixin = {}) ->
     table = new Table @, name, defs, mixin
-    @tables[table.name] = table
+    @tables.push table
   defineIndex: (def) ->
     if not def.table
       throw new Error("index_requires_table: #{def}")
@@ -604,7 +635,7 @@ class Schema
   registerIndex: (index) ->
     if @indexes.hasOwnProperty index.name
       throw new Error("index_name_duplication: #{index.name}")
-    @indexes[index.name] = index
+    @indexes.push index
   registerReference: (index, table, columns) ->
     @references[index.name] = new Reference @, index, table, columns
   hasTable: (name) ->
@@ -623,11 +654,11 @@ class Schema
       throw new Error("Schema.makeRecord:invalid_table: #{tableName}")
     new ActiveRecordSet table, db, arg
   serialize: () ->
-    tables = {}
-    for key, table of @tables
-      tables[key] = table.serialize()
+    tables = []
+    for table in @tables
+      tables.push table.serialize()
     indexes = []
-    for key, index of @indexes
+    for index in @indexes
       indexes.push index.serialize()
     {name: @name, tables: tables, indexes: indexes}
   generate: (conn) ->
