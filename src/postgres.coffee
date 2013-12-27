@@ -226,7 +226,7 @@ class PostgresDriver extends DBConnect
   generateCreateTable: (table) ->
     columns = @generateColumns table
     indexes = @generateEmbeddedIndexes table
-    "create table if not exists #{@tableName(table)} (\n  #{columns.concat(indexes).join('\n  , ')}\n  );"
+    "create table if not exists #{@tableName(table)} (\n  id serial not null primary key\n  , #{columns.concat(indexes).join('\n  , ')}\n  );"
   generateDropTable: (table) ->
     "drop table if exists #{@tableName(table)};\n"
   generateEmbeddedIndexes: (table) ->
@@ -256,12 +256,12 @@ class PostgresDriver extends DBConnect
     result = []
     result.push column.name
     result.push @generateType column
-    if column.default
-      result.push @generateDefault column
-    else if column.optional
+    if column.optional
       result.push "null"
     else
       result.push "not null"
+    if column.default
+      result.push @generateDefault column
     # lookup for the index.
     index = table.getColumnIndex column
     if index
@@ -269,11 +269,6 @@ class PostgresDriver extends DBConnect
         result.push 'unique'
       else if index.primary
         result.push 'primary'
-      # this will require figuring out whether or not the table has already been created.
-      # we'll also need the ability to alter it on demand.
-      # if we want to
-      if index.reference
-        result.push "references #{@tableName(index.reference.table)} (#{(index.reference.columns).join(', ')})"
     result.join ' '
   generateType: (col) ->
     type = col.type
@@ -296,11 +291,34 @@ class PostgresDriver extends DBConnect
         ""
     else
       "default #{@escapeVal(def)}"
+  generateForeignKeys: (index) ->
+    table = @tableName(index.table)
+    columns = index.columns.join(', ')
+    refTable = @tableName(index.reference.table)
+    refColumns = index.reference.columns.join(', ')
+    "alter #{table} add foreign key (#{columns}) references #{refTable} (#{refColumns});"
+  generateIndex: (index) ->
+    table = @tableName(index.table)
+    columns = index.columns.join(', ')
+    primaryOrUnique =
+      if index.primary
+        "primary"
+      else if index.unique
+        "unique"
+      else
+        ""
+    "create #{primaryOrUnique} index #{index.name} on #{table} (#{columns});"
   generateSchema: (schema = @schema) ->
     scripts = []
     for table in schema.tables
       # primary and unique keys can be created during the generation of the table.
       scripts.push @generateCreateTable table
+    # we'll add the index with foreign keys...
+    for index in schema.indexes
+      if index.reference
+        scripts.push @generateForeignKeys index
+      if not (index.unique or index.primary)
+        scripts.push @generateIndex index
     scripts.join('\n')
   functions:
     now: 'now'

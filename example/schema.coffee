@@ -10,10 +10,10 @@ module.exports = (schema) ->
   ]
 
   schema.defineTable 'Password', [
-    {col: 'type', type: 'string', default: 'sha256'}
+    {col: 'type', type: {string: {max: 32}}, default: 'sha256', unique: true}
     {col: 'salt', type: {'hexString': {max: 64}}, unique: true, default: {proc: 'randomBytes'}}
     {col: 'hash', type: {'hexString': {max: 64}}}
-    {col: 'userUUID', type: 'uuid', index: true, reference: {table: 'User', columns: ['uuid']}}
+    {col: 'userUUID', type: 'uuid', unique: true, reference: {table: 'User', columns: ['uuid']}}
     {col: 'created', type: 'datetime', default: {proc: 'now'}}
     {col: 'modified', type: 'datetime', default: {proc: 'now'}, update: {proc: 'now'}}
     {col: 'version', type: 'integer', default: 1, update: {proc: 'increment'}}

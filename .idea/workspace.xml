@@ -26,7 +26,7 @@
       <file leaf-file-name="dbconnect.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/dbconnect.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="195" column="39" selection-start="5935" selection-end="5935" vertical-scroll-proportion="-117.0" vertical-offset="0" max-vertical-offset="3075">
+            <state line="195" column="39" selection-start="5935" selection-end="5935" vertical-scroll-proportion="-21.56" vertical-offset="2386" max-vertical-offset="3075">
               <folding />
             </state>
           </provider>
@@ -44,7 +44,7 @@
       <file leaf-file-name="schema.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/schema.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="0" selection-start="1037" selection-end="1037" vertical-scroll-proportion="-11.4" vertical-offset="0" max-vertical-offset="645">
+            <state line="11" column="34" selection-start="512" selection-end="512" vertical-scroll-proportion="-6.6" vertical-offset="0" max-vertical-offset="645">
               <folding />
             </state>
           </provider>
@@ -53,7 +53,7 @@
       <file leaf-file-name="postgres.coffee" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/postgres.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="244" column="0" selection-start="6067" selection-end="6067" vertical-scroll-proportion="-23.96" vertical-offset="3061" max-vertical-offset="3750">
+            <state line="244" column="0" selection-start="6067" selection-end="6067" vertical-scroll-proportion="-86.96" vertical-offset="1486" max-vertical-offset="3750">
               <folding />
             </state>
           </provider>
@@ -80,7 +80,7 @@
       <file leaf-file-name="postgres.coffee" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/postgres.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="253" column="0" selection-start="8532" selection-end="8532" vertical-scroll-proportion="0.35849056" vertical-offset="3548" max-vertical-offset="4815">
+            <state line="239" column="0" selection-start="8203" selection-end="8203" vertical-scroll-proportion="-1.2189349" vertical-offset="4409" max-vertical-offset="5085">
               <folding />
             </state>
           </provider>
@@ -127,8 +127,8 @@
         <option value="$PROJECT_DIR$/bin/test" />
         <option value="$PROJECT_DIR$/src/dbconnect.coffee" />
         <option value="$PROJECT_DIR$/test/schema.coffee" />
-        <option value="$PROJECT_DIR$/example/schema.coffee" />
         <option value="$PROJECT_DIR$/src/schema.coffee" />
+        <option value="$PROJECT_DIR$/example/schema.coffee" />
         <option value="$PROJECT_DIR$/src/postgres.coffee" />
       </list>
     </option>
@@ -404,20 +404,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/example/schema.coffee">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="0" selection-start="1037" selection-end="1037" vertical-scroll-proportion="-11.4" vertical-offset="0" max-vertical-offset="645">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/dbconnect.coffee">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="195" column="39" selection-start="5935" selection-end="5935" vertical-scroll-proportion="-117.0" vertical-offset="0" max-vertical-offset="3075">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/schema.coffee">
       <provider selected="true" editor-type-id="text-editor">
         <state line="433" column="18" selection-start="12567" selection-end="12567" vertical-scroll-proportion="-9.88" vertical-offset="6248" max-vertical-offset="12210">
@@ -425,16 +411,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/example/schema.coffee">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="34" selection-start="512" selection-end="512" vertical-scroll-proportion="-6.6" vertical-offset="0" max-vertical-offset="645">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/dbconnect.coffee">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="195" column="39" selection-start="5935" selection-end="5935" vertical-scroll-proportion="-21.56" vertical-offset="2386" max-vertical-offset="3075">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/test/postgres.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="244" column="0" selection-start="6067" selection-end="6067" vertical-scroll-proportion="-23.96" vertical-offset="3061" max-vertical-offset="3750">
+        <state line="244" column="0" selection-start="6067" selection-end="6067" vertical-scroll-proportion="-86.96" vertical-offset="1486" max-vertical-offset="3750">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/postgres.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="253" column="0" selection-start="8532" selection-end="8532" vertical-scroll-proportion="0.35849056" vertical-offset="3548" max-vertical-offset="4815">
+        <state line="239" column="0" selection-start="8203" selection-end="8203" vertical-scroll-proportion="-1.2189349" vertical-offset="4409" max-vertical-offset="5085">
           <folding />
         </state>
       </provider>
