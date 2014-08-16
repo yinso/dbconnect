@@ -28,8 +28,13 @@ class DBConnect extends EventEmitter
     if not @connTypes.hasOwnProperty(args.type)
       throw new Error("DBConnect.unknown_type: #{args.type}")
     @inners[args.name] = args
+    args.loaders ||= {}
     if args.hasOwnProperty('module')
-      args.loader = require(args.module)
+      if args['module'] instanceof Array
+        for module in args['module']
+          args.loaders[module] = require(module)
+      else
+        args.loaders[args.module] = require(args.module)
   @make: (args) ->
     if not @inners.hasOwnProperty(args)
       throw new Error("DBConnect.unknownSetup: #{args}")
@@ -46,23 +51,30 @@ class DBConnect extends EventEmitter
   tableName: (name) -> name
   constructor: (args) ->
     @args = _.extend {}, @constructor.defaultOptions, args
+    @modules = {}
     @prepared = {}
     @currentUser = null
-    @loadModule()
-  loadModule: (loader = @args.loader) ->
-
-    if loader instanceof Function
-      loader @
-    else if loader instanceof Object
-      for key, val of loader
-        if loader.hasOwnProperty(key)
-          #console.log 'dbconnect.loadModule', key, val
-          if val instanceof Function
-            @prepare key, val
-          else
-            @prepareSpecial key, val
-    else # OK if no loader
-      return
+    for key, val of @args.loaders
+      @loadModule key, val
+  loadModule: (key, loader) ->
+    if @modules.hasOwnProperty(key)
+      console.error 'conn.loadModule:duplicate_loader_key', key
+      throw {duplicate_loader_key: key}
+    else
+      @modules[key] = loader
+      if loader instanceof Function
+        loader @
+      else if loader instanceof Object
+        for key, val of loader
+          if loader.hasOwnProperty(key)
+            #console.log 'dbconnect.loadModule', key, val
+            if val instanceof Function
+              @prepare key, val
+            else
+              @prepareSpecial key, val
+      else # OK if no loader
+        console.error 'conn.loadModule:not_a_loader', key, loader
+        return
   attachSchema: (schema) ->
     if not (schema instanceof Schema)
       throw new Error("attachSchema:not_a_schema #{schema}")

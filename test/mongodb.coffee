@@ -9,7 +9,7 @@ conn = null
 DBConnect.setup
   name: 'test'
   type: 'mongo'
-  module: '../example/mongodb'
+  module: ['../example/mongodb']
   database: 'auth'
   schema: schemaInit(schema)
 

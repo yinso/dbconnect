@@ -2,7 +2,7 @@ _ = require 'underscore'
 uuid = require 'node-uuid'
 async = require 'async'
 {EventEmitter} = require 'events'
-{check, sanitize} = require 'validator'
+validator = require 'validator'
 crypto = require 'crypto'
 
 class Column
@@ -737,7 +737,7 @@ Schema.registerType 'integer', INTEGER
 
 class EMAIL
   @convertable: (val) ->
-    check(val).isEmail()
+    validator.isEmail(val)
   @make: (val) ->
     if @convertable(val)
       val
@@ -749,7 +749,7 @@ Schema.registerType 'email', EMAIL
 
 class HEXSTRING
   @convertable: (val) ->
-    check(val).isHexadecimal(val)
+    validator.isHexadecimal(val)
   @make: (val) ->
     if @convertable(val)
       val
@@ -778,7 +778,7 @@ Schema.registerType 'hexString', HEXSTRING
 
 class DATETIME
   @convertable: (val) ->
-    check(val).isDate(val)
+    validator.isDate(val)
   @make: (val) ->
     if @convertable(val)
       new Date Date.parse(val)

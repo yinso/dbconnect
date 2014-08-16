@@ -10,6 +10,8 @@ DBConnect.setup
   name: 'test2'
   type: 'postgres'
   database: 'test'
+  user: 'test'
+  password: 'password'
   schema: schemaInit(schema)
 
 userArg = {login: 'test', email: 'testa.testing111@gmail.com', uuid: uuid.v4() }
@@ -26,6 +28,14 @@ describe 'postgresql test', () ->
           done err
         else
           done null
+    catch e
+      done e
+
+  it 'can create', (done) ->
+    try
+      conn.query 'create table if not exists test1 (col1 int, col2 int)', {}, (err, res) ->
+        console.log 'pg.createTable', err, res
+        done err
     catch e
       done e
 
@@ -83,6 +93,22 @@ describe 'postgresql test', () ->
       conn.prepare 'deleteTest', (args, cb) ->
         @query "delete from test1", args, cb
       conn.deleteTest {col1: 1, col2: 2}, (err, res) ->
+        done err
+    catch e
+      done e
+
+  it 'can create user', (done) ->
+    try
+      conn.query 'create table if not exists user_t (id serial primary key, uuid uuid unique not null default uuid_generate_v4(), login varchar(20) unique not null, email varchar(384) unique not null, created timestamp default current_timestamp, modified timestamp default current_timestamp, version int default 1)', {}, (err, res) ->
+        console.log 'pg.createTable.password_t', err, res
+        done err
+    catch e
+      done e
+
+  it 'can create password', (done) ->
+    try
+      conn.query "create table if not exists password_t (id serial primary key, type varchar(32) default 'sha256' not null, salt varchar(64), hash varchar(64), userUUID uuid references user_t (uuid) not null, created timestamp default current_timestamp, modified timestamp default current_timestamp, version int default 1)", {}, (err, res) ->
+        console.log 'pg.createTable.user_t', err, res
         done err
     catch e
       done e

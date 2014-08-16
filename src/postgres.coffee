@@ -34,7 +34,6 @@ class PostgresDriver extends DBConnect
               "_" + str.toLowerCase()
           else
             str
-      #console.log 'PostgresDRiver.tableName', name, splitted, normalized
       normalized.join('') + "_t"
     if typeof(name) == 'string'
       helper name
@@ -55,9 +54,7 @@ class PostgresDriver extends DBConnect
     # we'll need to parse the query to convert $key to $n
     parsed = @parseStmt stmt, args
     @inner.query parsed.stmt, parsed.args, (err, res) =>
-      #console.log 'Postgres._query', parsed.stmt, parsed.args, err, res
       if err
-        #console.log 'inner.query.hasError', err
         cb err
       else if stmt.selectOne
         cb null, res.rows[0]
@@ -75,7 +72,6 @@ class PostgresDriver extends DBConnect
     for s in splitted
       matched = s.match /^\$([\w]+)$/
       if matched
-        #console.log 'Postgresql.parseStmt', s, matched[1], args[matched[1]], args.hasOwnProperty(matched[1]), matched
         if not args.hasOwnProperty(matched[1])
           throw new Error("Postgresql.query:stmt_missing_key: #{s}")
         normedArgs.push args[matched[1]]
@@ -96,21 +92,12 @@ class PostgresDriver extends DBConnect
   rollback: (cb) ->
     @_query 'rollback', {}, cb
   ensureInsertColumns: (table, kv) ->
-    #console.log 'Postgres.ensureInsertColumns', table.name, kv
     for col in table.columns
       if kv.hasOwnProperty(col.name)
         continue
       else if not col.optional
         throw new Error("Postgresql.ensureInsertColumns:missing_required_column: #{col.name}")
-  ensureColumns: (table, kv) ->
-    # what do we need to do with ensure columns then?
-    # not really anything at all...??
-    #for col in table.
-    #for key, val of kv
-    #  if not table.hasColumn key
-    #    throw new Error("Postgresql.ensureColumns.unknown_column: #{key}")
   valuesStmt: (table, args, i = 0) ->
-    #console.log 'Postgresql.valuesStmt', table.name, args
     keys = []
     vals = {}
     for col in table.columns
@@ -121,7 +108,6 @@ class PostgresDriver extends DBConnect
     stmt = "(" + keys.join(', ') + ")"
     {stmt: stmt, values: vals}
   generateInsert: (table, args) ->
-    #console.log 'Postgresql.generateInsert', table.name, args
     stmts =
       if args instanceof Array
         stmts =
@@ -135,7 +121,6 @@ class PostgresDriver extends DBConnect
       (stmt.stmt for stmt in stmts).join(', ')
     values =
       _.extend.apply {}, [{}].concat(stmt.values for stmt in stmts)
-    # it is time to transpose
     idQuery =
        if args instanceof Array
          table.idQuery table.transpose(args)
@@ -169,39 +154,32 @@ class PostgresDriver extends DBConnect
     if Object.keys(query).length == 0
       {stmt: "delete from #{@tableName(table.name)}", args: query}
     else
-      #@ensureColumns table, query
       stmt = @criteriaQuery table, query
       {stmt: "delete from #{@tableName(table.name)} where #{stmt}", args: query}
   generateSelect: (table, query) ->
     if Object.keys(query).length == 0
       {stmt: "select * from #{@tableName(table.name)}", args: query}
     else
-      #@ensureColumns table, query
       stmt = @criteriaQuery table, query
       {stmt: "select * from #{@tableName(table.name)} where #{stmt}", args: query}
   generateSelectOne: (table, query) ->
     if Object.keys(query).length == 0
       {stmt: "select * from #{@tableName(table.name)}", args: query, selectOne: true}
     else
-      #@ensureColumns table, query
       stmt = @criteriaQuery table, query
       {stmt: "select * from #{@tableName(table.name)} where #{stmt}", args: query, selectOne: true}
   generateUpdate: (table, setExp, query) ->
-    #@ensureColumns table, setExp
     setGen = @criteriaQuery table, setExp, ', '
     if Object.keys(query).length == 0
       {stmt: "update #{@tableName(table.name)} set #{setGen}", args: setExp}
     else
-      #@ensureColumns table, query
       queryGen = @criteriaQuery table, query
       {stmt: "update #{@tableName(table.name)} set #{setGen} where #{queryGen}", args: _.extend({}, setExp, query)}
   normalizeRecord: (table, rec) ->
-    #console.log 'PostgresDriver.normalizeRecord', table.name, rec
     # postgres stores the columns case-insensitively, so we'll need to remap the records.
     obj = {}
     for col in table.columns
       lc = col.name.toLowerCase()
-      #console.log 'PostgresDriver.normalize', col.name, lc, rec[lc]
       if rec.hasOwnProperty(col.name)
         obj[col.name] = rec[col.name]
       else if rec.hasOwnProperty(lc)
@@ -222,11 +200,11 @@ class PostgresDriver extends DBConnect
       true
     else
       false
-  # I'll need to support creating database from scratch...
   generateCreateTable: (table) ->
     columns = @generateColumns table
     indexes = @generateEmbeddedIndexes table
-    "create table if not exists #{@tableName(table)} (\n  id serial not null primary key\n  , #{columns.concat(indexes).join('\n  , ')}\n  );"
+    specs = ['  id serial not null primary key'].concat(columns, indexes).join('\n  , ')
+    "create table if not exists #{@tableName(table)} (\n#{specs}\n  );"
   generateDropTable: (table) ->
     "drop table if exists #{@tableName(table)};\n"
   generateEmbeddedIndexes: (table) ->
@@ -242,7 +220,6 @@ class PostgresDriver extends DBConnect
       result.push (col for col in index.columns).join(', ')
       result.push ")"
       result.join('')
-
     result = []
     for index in table.indexes
       if index.columns.length == 1
@@ -262,7 +239,6 @@ class PostgresDriver extends DBConnect
       result.push "not null"
     if column.default
       result.push @generateDefault column
-    # lookup for the index.
     index = table.getColumnIndex column
     if index
       if index.unique
@@ -280,7 +256,7 @@ class PostgresDriver extends DBConnect
       type.postgres
   generateDefault: (col) ->
     def = col.def.default
-    if def instanceof Object # this denotes a function - this requires it to be defined for postgres.
+    if def instanceof Object
       if @functions.hasOwnProperty(def.proc)
         converter = @functions[def.proc]
         if converter instanceof Function
@@ -297,7 +273,7 @@ class PostgresDriver extends DBConnect
     refTable = @tableName(index.reference.table)
     refColumns = index.reference.columns.join(', ')
     "alter #{table} add foreign key (#{columns}) references #{refTable} (#{refColumns});"
-  generateIndex: (index) ->
+  generateCreateIndex: (index) ->
     table = @tableName(index.table)
     columns = index.columns.join(', ')
     primaryOrUnique =
@@ -308,23 +284,38 @@ class PostgresDriver extends DBConnect
       else
         ""
     "create #{primaryOrUnique} index #{index.name} on #{table} (#{columns});"
+  generateDropIndex: (index) ->
+    "drop index if exists #{index.name};"
+  #
+  # time to figure out how to deal with migration scripts.
+  #
+  # we can generate the script - but if we do, then we'll have to deal with certain things manually
+  # or we can create script running via .coffee...
+  #
+  # let's see what sequelize does.
+  #
+  # they have something called migration object.
+  #
+  # we'll still need something that tells us how big a particular object is.
+  #
+  # in order to create it - we'll need to know whether or not something has been previously executed.
+  # but it means we'll be generating the script twice.
+  #
+  # I should really get cranking on the C# version...!!!
+  # it is of course *best* when we don't have to
+  #
   generateSchema: (schema = @schema) ->
     scripts = []
     for table in schema.tables
-      # primary and unique keys can be created during the generation of the table.
       scripts.push @generateCreateTable table
-    # we'll add the index with foreign keys...
     for index in schema.indexes
       if index.reference
         scripts.push @generateForeignKeys index
       if not (index.unique or index.primary)
-        scripts.push @generateIndex index
+        scripts.push @generateCreateIndex index
     scripts.join('\n')
   functions:
     now: 'now'
-
-
-
 
 DBConnect.register 'postgres', PostgresDriver
 
