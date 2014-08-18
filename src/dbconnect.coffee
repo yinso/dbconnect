@@ -86,6 +86,14 @@ class DBConnect extends EventEmitter
       @prepared[stmt] @, args, cb
     else
       @_query arguments...
+  queryOne: (stmt, args, cb) ->
+    @query stmt, args, (err, res) =>
+      if err
+        cb err
+      else if not res or res.length == 0
+        cb {error: 'no_records_found'}
+      else
+        cb null, res[0]
   prepare: (key, func) ->
     if @prepared.hasOwnProperty(key)
       throw new Error("#{@constructor.name}.duplicate_prepare_stmt: #{key}")

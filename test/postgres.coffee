@@ -55,6 +55,14 @@ describe 'postgresql test', () ->
     catch e
       done e
 
+  it 'can selectOne', (done) ->
+    try
+      conn.queryOne "select * from test1 where col1 = $col1", {col1: 1}, (err, res) ->
+        console.log 'pg.selectOne', err, res
+        done err
+    catch e
+      done e
+
   it 'can update', (done) ->
     try
       conn.query "update test1 set col2 = $col2 where col1 = $col1", {col1: 1, col2: 3}, (err, res) ->

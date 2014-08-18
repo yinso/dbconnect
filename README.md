@@ -87,6 +87,9 @@ For the Postgresql driver it would look like the following
 
 The way DBConnect abstracts over these differences is via prepared statements.
 
+`queryOne` is used the same way as `query`, except that it will return the first item in the result (i.e. using it
+with insert/update/delete will result in errors).
+
 ## Prepared Statements
 
 A prepared statements has the following signature.
